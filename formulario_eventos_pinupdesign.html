@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário — Site de Evento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f1f1f1;
+  --surface: #ffffff;
+  --surface2: #f8f8f8;
+  --border: #e0e0e0;
+  --border-focus: #a0a0a0;
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  --accent: #6e6e73;
+  --accent-light: #f1f1f1;
+  --accent-mid: #d0d0d0;
+  --accent-hover: #3a3a3c;
+  --warn: #c0392b;
+  --radius: 8px;
+  --label-size: 10.5px;
+  --shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:52px 16px 110px;font-size:13px}
+.page-wrap{max-width:740px;margin:0 auto}
+
+/* HEADER */
+.header{margin-bottom:52px}
+.header-brand{margin-bottom:20px;display:block}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,3.2rem);font-weight:500;line-height:1.1;color:var(--text);margin-bottom:18px}
+.header h1 em{font-style:italic;font-weight:400;color:#581119}
+.header p{color:var(--text-muted);font-size:14px;line-height:1.9;font-weight:300;margin-bottom:8px}
+.header p:last-child{margin-bottom:0}
+
+/* FLOATING PROGRESS SEGMENTADO */
+.progress-float{position:fixed;bottom:28px;left:28px;z-index:100;width:58px;height:58px}
+.progress-float svg{width:58px;height:58px}
+.seg-track{fill:none;stroke-width:10;stroke:#e0e0e0}
+.seg-fill{fill:none;stroke-width:10;stroke-linecap:butt;transition:stroke-dasharray .4s cubic-bezier(.4,0,.2,1)}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:40px}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.progress-track{height:2px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:#581119;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
+
+/* CARDS */
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:34px 38px;margin-bottom:16px;box-shadow:var(--shadow);animation:rise .3s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-card.hidden{display:none!important}
+.section-head{padding-bottom:22px;margin-bottom:28px;border-bottom:1px solid var(--border)}
+.section-num{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#581119;margin-bottom:5px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:500;color:var(--text)}
+.section-desc{font-size:13px;color:var(--text-muted);margin-top:5px;font-weight:300;line-height:1.7}
+
+/* GRID */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+@media(max-width:580px){.g2{grid-template-columns:1fr}}
+.col-2{grid-column:span 2}
+@media(max-width:580px){.col-2{grid-column:span 1}}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px}
+label.field-label{font-size:var(--label-size);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+.opt-tag{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+.req{color:#581119;font-size:12px}
+input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="time"],input[type="url"],select,textarea{
+  font-family:'Jost',sans-serif;font-size:13px;font-weight:300;color:var(--text);
+  background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:10px 13px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+  width:100%;resize:vertical;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--border-focus);background:#fff;box-shadow:0 0 0 3px rgba(184,159,138,.12)}
+input::placeholder,textarea::placeholder{color:#c8bdb5;font-size:13px;font-weight:300}
+textarea{min-height:80px}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7d74' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.field-hint{font-size:12px;color:var(--text-muted);line-height:1.6;font-weight:300}
+
+/* CHOICES */
+.choice-group{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+.choice-inline{flex-direction:row;flex-wrap:wrap;gap:8px}
+.choice-item{display:flex;align-items:center;gap:9px;padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .18s,background .18s;font-size:13px;font-weight:400;color:var(--text);user-select:none;background:var(--surface2)}
+.choice-item:hover{border-color:var(--border-focus);background:var(--accent-light)}
+.choice-item.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.choice-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:24px 0}
+.block-label{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;margin-top:32px;display:flex;align-items:center;gap:8px}
+.block-label:first-of-type{margin-top:0}
+.block-label::after{content:'';flex:1;height:1px;background:var(--accent-mid)}
+
+/* COND */
+.cond-block{display:none;margin-top:12px}
+.cond-block.on{display:block;animation:rise .22s ease both}
+
+/* TOGGLE SW (reutilizado do modelo original) */
+.toggle-sw{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:#ccc;border-radius:99px;transition:background .2s;cursor:pointer}
+.toggle-track::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-sw input:checked+.toggle-track{background:#581119}
+.toggle-sw input:checked+.toggle-track::before{transform:translateX(16px)}
+
+/* BOTÃO SEM CERIMONIAL */
+.cerim-skip-btn{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;user-select:none;transition:background .2s;margin-bottom:4px}
+.cerim-skip-btn:hover{background:var(--accent-light)}
+.cerim-skip-label{font-size:13px;font-weight:500;color:var(--text-muted);line-height:1.4}
+
+/* AVISO */
+.aviso-block{display:flex;align-items:flex-start;gap:12px;background:#fdf8f8;border:1px solid #e8c8c8;border-left:3px solid #581119;border-radius:var(--radius);padding:13px 16px;margin-top:20px}
+.aviso-icon{font-size:14px;flex-shrink:0;margin-top:1px;color:#581119}
+.aviso-text{font-size:12px;color:#581119;font-weight:400;line-height:1.7}
+.aviso-text strong{font-weight:600}
+
+/* INFO NOTE */
+.info-note{font-size:12px;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;line-height:1.7;font-weight:300}
+
+/* DIA BLOCK */
+.dia-block{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:12px;position:relative}
+.dia-block-num{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.btn-remove-dia{position:absolute;top:16px;right:16px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-family:'Jost',sans-serif;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;letter-spacing:.06em;transition:border-color .15s,color .15s}
+.btn-remove-dia:hover{border-color:var(--warn);color:var(--warn)}
+.btn-add-dia{display:flex;align-items:center;gap:8px;padding:10px 18px;border:1.5px dashed var(--accent-mid);border-radius:var(--radius);background:transparent;font-family:'Jost',sans-serif;font-size:13px;font-weight:500;color:var(--accent);cursor:pointer;letter-spacing:.06em;transition:border-color .18s,background .18s;margin-top:4px;width:100%;justify-content:center}
+.btn-add-dia:hover{border-color:var(--accent);background:var(--accent-light)}
+.btn-add-dia svg{width:14px;height:14px;flex-shrink:0}
+
+/* CHECKBOXES GRID */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+@media(max-width:480px){.check-grid{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:44px;justify-content:center}
+.btn{font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px 28px;border-radius:99px;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .15s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#f5f5f5;color:#581119;border:1.5px solid #e0e0e0;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.btn-primary:hover{background:#ebebeb}
+.btn-ghost{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-wa{background:#25D366;color:#fff;box-shadow:0 4px 14px rgba(37,211,102,.22)}
+.btn-wa:hover{background:#1dbd5c}
+.foot{text-align:center;font-size:13px;color:var(--text-muted);margin-top:28px;line-height:1.8;font-weight:300}
+.foot a{color:#581119;text-decoration:none;font-weight:500}
+
+/* SEND STEPS */
+.send-steps{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-top:16px;box-shadow:var(--shadow)}
+.send-steps-title{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+.send-step{display:flex;gap:16px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:#581119;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+.step-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--text-muted);font-weight:300;line-height:1.6}
+.step-connector{width:1px;height:20px;background:var(--border);margin:6px 0 6px 13px}
+
+@media(max-width:560px){
+  .section-card{padding:24px 18px}
+  .send-steps{padding:22px 18px}
+  .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- FLOATING PROGRESS SEGMENTADO -->
+<div class="progress-float">
+  <svg viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg" id="seg-svg">
+    <!-- gerado via JS -->
+  </svg>
+</div>
+
+<div class="page-wrap">
+
+<div class="header">
+  <div class="header-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.89 135.85" style="width:140px;height:auto;display:block"><defs><style>.lc{fill:#581119;fill-rule:evenodd}</style></defs><path class="lc" d="M26.74,25.68c2.05-.41.23,4.17.42,6.22.83,9.22,10.9,12.37,18.64,13.46,3.41.48,6.93.66,10.57.55,3.64-.12,7.07-.5,10.31-1.17,1.23-3.18,2.61-6.02,4.13-8.52,1.52-2.51,3.1-4.6,4.74-6.28,2.51-2.56,6.02-5.18,9.8-4.84,7.47.67,5.57,9.65,2.39,13.98-1.4,2.07-3.34,4.05-5.81,5.93-2.47,1.88-5.01,3.23-7.61,4.05-1.33,3.77-2.33,7.68-3.33,11.54,5.75-7.38,12.65-15.83,20.21-21.28,5.87-4.22,14.66-8.4,19.08-1.06,3.01,5,1.89,12.37.53,17.67-3.14,11.82-10.62,24.86-22.07,30.12-7.66,3.52-19.9,2.23-18.18-8.72.22-1.43.49-2.62.8-3.57.3-.77.99-.98,1.66-.49,1.11.78,2.56,1.3,4.35,1.56,11.39,1.66,21.37-14.82,24.56-24.27.74-2.18,2.61-7.47.32-9.26-5.93-2.16-17.86,11.9-21.32,15.87-11.39,13.07-13.09,22-17.18,38.37-1.24,4.84-3.48,10.37-7.82,13.25-6.62,4.4-15.34,1.15-17.27-6.83-1.51-6.26,1.04-1.63,4.54-3.25,1.22-.57,2.26-1.29,3.12-2.17,7.09-7.24,12.74-32.48,17.48-44.19-3.55,1.14-7.55,2.03-12.02,2.67-7.5,1.07-17.46.73-24.64-1.95-7.78-2.98-17.43-11.98-12.27-20.75,2.38-4.03,7.48-5.78,11.88-6.66h0ZM82.57,32.73c-2.29,2.34-4.35,6.31-5.72,9.31,1.42-.73,2.69-1.61,3.83-2.65,1.69-1.55,3.52-3.62,4.45-5.74,1.21-2.75-1.12-2.39-2.56-.92Z"/><path class="lc" d="M136.92,57.94c.16.63.13,1.22-.1,1.78-.76,3.01-1.65,5.65-2.65,7.92-1.01,2.26-2.04,4.23-3.09,5.9-2.09,3.33-5.86,7.39-9.46,9.11-4.77,2.26-10.97-.07-11.86-5.46-.87-5.29,1.25-10.47,3.83-14.99,1.84-3.53,3.38-7.26,4.1-11.19.26-1.43.39-2.61.38-3.56,0-.95-.06-1.7-.14-2.25-.16-.63.07-.95.7-.96,2.68-.7,6.3-.8,7.79,2,.52.98.52,2.43-.02,4.33-.61,2.22-1.28,4.56-2.01,7.02-.73,2.46-1.48,4.8-2.24,7.02-1.33,3.73-.42,8.5,3.78,4.77,1.22-1.08,2.41-2.4,3.58-3.95,1.17-1.55,2.26-3.17,3.27-4.84,1.01-1.67,1.75-2.94,2.22-3.82.16-.32.39-.48.71-.48.32,0,.55.15.72.47.16.16.26.35.3.59.04.24.1.43.18.59h0ZM123.83,42.41c-1.19-.07-2.18-.35-2.97-.86-.8-.51-1.16-1.08-1.08-1.71.07-.63.52-1.17,1.35-1.61.83-.44,1.83-.63,3.02-.56,1.11.15,2.06.47,2.86.98.8.51,1.16,1.08,1.08,1.71-.07.63-.52,1.17-1.35,1.61-.83.44-1.79.59-2.9.44h0Z"/><path class="lc" d="M156.26,82.07c-1.02.41-2.21.69-3.55.86-8.03,1.02-9.21-6.48-8.07-12.5.61-2.7,1.69-5.63,3.24-8.81.7-1.51,1.51-3.08,2.45-4.71.47-.83,2.1-3.19,2.1-4.11-.01-1.29-2.83,2.72-2.85,2.75-2.18,3.06-4.26,6.19-6.17,9.44-1.72,2.94-3.2,5.96-4.48,9.06-1.27,3.1-1.7,5.63-1.29,7.61.17.87-.19,1.31-1.06,1.32-2.89.03-5.2-.72-7.15-2.96-.72-.82-1.25-1.95-1.58-3.37-.61-2.53.31-5.81,1.17-8.2.65-1.83,1.68-3.97,3.08-6.44,2.72-4.77,4.54-8.53,5.47-11.27.92-2.74,1.34-4.7,1.25-5.89,0-.71.34-1.07,1.06-1.08,2.41-.02,4.49.9,5.13,3.39.53,2.03-.89,5.68-1.35,7.84,2.57-4.06,5.13-7.05,7.68-8.97,2.55-1.92,4.82-2.62,6.8-2.08,2.81.99,3.12,4.84,2.68,7.33-.37,2.53-.94,4.75-1.71,6.66-.82,2.02-3.06,7.45-2.93,9.46.19,3.02,1.93,3.79,4.41,1.68,1.22-1.04,2.41-2.36,3.58-3.95,1.17-1.59,2.26-3.23,3.27-4.9.53-.88.99-1.64,1.37-2.3,2.67-4.62,3.06.15,2.24,2.89-.72,2.41-1.51,4.57-2.35,6.46-2.35,5.29-6.77,12.45-12.43,14.77h0Z"/><path class="lc" d="M189.17,50.83c-.54,2.09-1.12,4.23-1.74,6.4-.92,3.23-2.27,6.45-3.04,9.67-.8,4.64,1.38,5.03,4.41,1.58,3.96-4.5,7.63-11.97,8.74-17.97.27-1.45.4-2.65.39-3.62,0-.96-.06-1.73-.14-2.29-.17-.64.03-.96.59-.97,2.69-.7,6.54-.87,7.97,2.03.49,1,.51,2.46.04,4.4-.62,2.26-1.3,4.63-2.04,7.13-.74,2.5-1.5,4.87-2.28,7.13-.55,1.53-.82,2.68-.81,3.44.03,3.08,2.5,3.31,4.65,1.4,1.23-1.1,2.45-2.43,3.63-4.01,1.19-1.58,2.3-3.21,3.33-4.91,1.03-1.7,1.78-2.99,2.25-3.88.16-.32.4-.49.72-.49.32,0,.56.15.73.48.16.16.26.36.31.6.04.24.1.44.19.6.08.4.05,1-.1,1.81-.77,3.06-1.67,5.74-2.69,8.04-1.02,2.3-2.07,4.3-3.13,5.99-1.07,1.7-2.14,3.09-3.21,4.19-1.07,1.1-2.05,2.01-2.92,2.74-3.96,3.47-10.62,5-14.1-.1-.65-.96-1.1-2-1.36-3.12-1.35,1.7-2.82,3.12-4.42,4.26-6.83,4.88-14.39.15-13.09-8.18.15-1.21.56-2.74,1.22-4.59.66-1.85,1.71-4.03,3.13-6.54,2.76-4.85,4.61-8.66,5.55-11.44.94-2.78,1.36-4.77,1.27-5.98,0-.72.35-1.09,1.07-1.09,2.44-.02,4.55.91,5.21,3.44.25.96.14,2.25-.32,3.86h0Z"/><path class="lc" d="M286.86,61.02c4.24,5.93-.24,13.92-7.86,15.44-10.7,2.12-29.71-5.8-40.15-8.05-.63,1.37-1.4,2.88-2.31,4.54-3.26,5.94-10.76,12.62-17.87,8.25-1.09-.67-1.96-1.57-2.62-2.68-.82,3.73-2.12,10.86-.58,14.46.41.96,1.06,1.6,1.95,1.91.46.15.72.85.37,1.2-3.62,3.69-11.24,2.99-13.27-2.1-2.44-6.13,1.51-16.73,3.88-22.14,2.04-4.76,3.61-8.79,4.7-12.09,1.09-3.3,1.89-6.04,2.39-8.21.5-2.17.75-3.86.73-5.07-.01-1.2-.06-2.09-.15-2.65-.17-.72.11-1.17.83-1.33,2.52-.3,5.95-.18,7.61,2.03.57.76.82,1.82.75,3.18,4.61-4.7,12.4-7.39,15.79.57,1.4,3.28,1.44,7.66.13,13.13,9.28,2.55,28.82,4.97,37.51,2.95,2.88-.67,4.64-2.17,5.26-4.51.45-1.86,2.53.66,2.9,1.18h0ZM220.6,62.2c1.36-.66,3-1.15,4.92-1.49,1.92-.34,4.29-.44,7.1-.31.45-1.23.86-2.47,1.17-3.75.46-1.93.69-3.44.68-4.52-.04-3.83-2.3-5.03-5.5-2.36-3.2,2.67-7.08,8.41-8.37,12.43h0ZM220.91,68.95c2.34,3.89,6.69.4,8.53-2.13-2.41-.06-4.3.12-5.66.54-1.36.41-2.32.95-2.88,1.59h0Z"/><path class="lc" d="M234,86.21c2.48,0,3.76,1.57,3.84,4.72,0,3.11-1.24,4.68-3.73,4.7l-4.9-.03v-.05c.31-.17.47-.47.47-.89v-7.49c0-.38-.16-.68-.47-.91v-.03l4.8-.03h0ZM231.67,87.49v6.86h1.85c1.43,0,2.13-1.1,2.11-3.29v-.13c0-2.27-.73-3.42-2.17-3.44h-1.79Z"/><path class="lc" d="M240.43,86.23h6.36l.45,2.79h-.05c-.49-.99-1.22-1.49-2.19-1.49h-2.09v2.69h2.3c.25,0,.48-.24.7-.73h.05v2.69h-.05c-.22-.49-.46-.73-.7-.73h-2.3v2.84h2.06c1.28,0,2.21-.5,2.79-1.51h.05l-.63,2.82h-6.76v-.03c.3-.24.44-.52.44-.86v-7.57c0-.39-.15-.68-.44-.89v-.03h0Z"/><path class="lc" d="M254.86,86.1c.87,0,1.86.31,2.97.91l-.71,2.37c-.69-1.25-1.54-1.88-2.56-1.88-.83.01-1.25.35-1.25,1.02s.9,1.33,2.69,2.03c1.39.54,2.09,1.37,2.11,2.48,0,1.27-.69,2.14-2.06,2.58-.41.12-.91.18-1.51.18-1.52,0-2.84-.57-3.96-1.7l1.12-2.19c.37,1.04.97,1.8,1.8,2.27.28.16.54.24.78.24,1.17.02,1.76-.41,1.77-1.28,0-.53-.75-1.12-2.24-1.8-1.69-.76-2.53-1.72-2.53-2.9,0-1.1.55-1.81,1.64-2.11.51-.16,1.16-.24,1.93-.24h0Z"/><path class="lc" d="M261.41,86.23h2.92v.03c-.3.2-.45.58-.45,1.15v7.02c0,.6.16.98.47,1.12v.05h-2.95v-.05c.31-.17.47-.47.47-.89v-7.49c0-.38-.16-.68-.47-.91v-.03h0Z"/><path class="lc" d="M272.61,85.92h.42c1.1,0,2.19.34,3.26,1.02l-.7,2.38c-.3-.66-.88-1.16-1.75-1.51-.43-.16-.83-.23-1.17-.23h-.23c-1.06,0-1.83.55-2.32,1.64-.24.55-.37,1.13-.37,1.72,0,1.14.42,2.1,1.25,2.87.47.45,1.08.68,1.83.68.46,0,.95-.15,1.46-.44.47-.28.7-.74.7-1.38,0-.86-.24-1.44-.73-1.75v-.03h3.05v.03c-.49.31-.73.86-.73,1.67v3.09h-.81l-.6-.32c-.87.43-1.75.65-2.64.65-3.17,0-4.8-1.7-4.88-5.09,0-1.65.69-2.99,2.06-4.04.81-.63,1.77-.94,2.9-.94h0Z"/><path class="lc" d="M280.12,86.23h2.29c.1.08,1.3,1.86,3.6,5.35v-4.49c0-.36-.15-.63-.44-.81v-.05h2.92v.05c-.3.18-.44.45-.44.81v7.64c0,.33.15.61.44.83v.03h-2.92v-.03c.3-.23.44-.51.44-.83v-.47l-3.39-5.11h-.03v5.61c0,.33.15.59.44.78v.05h-2.92v-.03c.3-.24.44-.52.44-.86v-7.57c0-.39-.15-.67-.44-.86v-.05h0Z"/></svg></div>
+  <h1>Site Convite para <em>seu evento</em></h1>
+  <p>Preencha com calma — revise suas respostas antes de enviar o documento final.</p>
+  <p>Campos marcados como <strong>opcional</strong> podem ser deixados em branco por enquanto; você poderá complementar depois.</p>
+  <p>Ao final, baixe o PDF e siga os passos abaixo para enviar todas as informações.</p>
+  <div class="aviso-block">
+    <div class="aviso-icon">⚠</div>
+    <div class="aviso-text"><strong>Atenção:</strong> os dados preenchidos neste formulário <strong>não ficam salvos automaticamente</strong>. Ao concluir o preenchimento, realize o download do PDF imediatamente. Não feche nem recarregue esta página antes de baixar — as informações serão perdidas.</div>
+  </div>
+  <p style="margin-top:16px">Qualquer dúvida durante o preenchimento, é só nos enviar uma mensagem no <a href="https://wa.me/5531988230022" target="_blank" style="color:#581119;font-weight:500;text-decoration:none">WhatsApp</a> ou pelo e-mail <a href="mailto:dani@pinupdesign.com.br" style="color:#581119;font-weight:500;text-decoration:none">dani@pinupdesign.com.br</a>.</p>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta"><span>Progresso</span><span id="pct-label">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SEÇÃO 01 — DADOS DO EVENTO
+════════════════════════════════════════════ -->
+<div class="section-card" id="sec-evento">
+  <div class="section-head">
+    <div class="section-num">Seção 01</div>
+    <div class="section-title">Dados do Evento</div>
+    <div class="section-desc">Tipo do evento, data, local e programação.</div>
+  </div>
+
+  <!-- Tipo -->
+  <div class="field" style="margin-bottom:20px">
+    <label class="field-label">Tipo de evento <span class="req">*</span></label>
+    <div class="choice-group" id="tipo-group">
+      <label class="choice-item" onclick="selectTipo(this,'casamento')"><input type="radio" name="tipo" value="Casamento"> Casamento</label>
+      <label class="choice-item" onclick="selectTipo(this,'bodas')"><input type="radio" name="tipo" value="Bodas"> Bodas</label>
+      <label class="choice-item" onclick="selectTipo(this,'15anos')"><input type="radio" name="tipo" value="15 Anos"> 15 Anos</label>
+      <label class="choice-item" onclick="selectTipo(this,'aniversario')"><input type="radio" name="tipo" value="Festa Adulto"> Festa Adulto</label>
+      <label class="choice-item" onclick="selectTipo(this,'infantil')"><input type="radio" name="tipo" value="Festa Infantil"> Festa Infantil</label>
+      <label class="choice-item" onclick="selectTipo(this,'empresarial')"><input type="radio" name="tipo" value="Empresarial / Corporativo"> Empresarial / Corporativo</label>
+      <label class="choice-item" onclick="selectTipo(this,'outro')"><input type="radio" name="tipo" value="Outro"> Outro</label>
+    </div>
+  </div>
+  <div class="cond-block" id="tipo-outro-block">
+    <div class="field" style="margin-bottom:20px">
+      <label class="field-label">Descreva o tipo de evento <span class="opt-tag">Opcional</span></label>
+      <input type="text" id="tipo-outro-text" placeholder="Descreva o evento">
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Duração -->
+  <div class="field" style="margin-bottom:20px">
+    <label class="field-label">Duração do evento <span class="req">*</span></label>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'duracao');showDuracao('unico')"><input type="radio" name="duracao" value="Dia único"> Dia único</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'duracao');showDuracao('multiplos')"><input type="radio" name="duracao" value="Múltiplos dias"> Múltiplos dias</label>
+    </div>
+  </div>
+
+  <!-- Dia único -->
+  <div class="cond-block" id="duracao-unico">
+    <div class="dia-block" id="dia-fixo">
+      <div class="dia-block-num">Dados do Evento</div>
+      <div class="grid g2">
+        <div class="field">
+          <label class="field-label">Data <span class="req">*</span></label>
+          <input type="date" id="dia-unico-data">
+        </div>
+        <div class="field">
+          <label class="field-label">Horário de início <span class="req">*</span></label>
+          <select id="dia-unico-inicio"><option value="">Selecione</option></select>
+        </div>
+        <div class="field">
+          <label class="field-label">Horário de término <span class="opt-tag">Opcional</span></label>
+          <select id="dia-unico-fim"><option value="">Selecione</option></select>
+        </div>        <div class="field">
+          <label class="field-label">Nome do local <span class="req">*</span></label>
+          <input type="text" id="dia-unico-local" placeholder="Ex: Espaço Villa Jardim">
+        </div>
+        <div class="field col-2">
+          <label class="field-label">Endereço completo do local <span class="req">*</span></label>
+          <input type="text" id="dia-unico-end" placeholder="Rua, número, bairro, cidade, estado">
+        </div>
+        <div class="field col-2">
+          <label class="field-label">Haverá dress code? <span class="req">*</span></label>
+          <div class="choice-group choice-inline">
+            <label class="choice-item" onclick="selectRadioInline(this,'dresscode-unico');showCond('dresscode-unico-block',true)"><input type="radio" name="dresscode-unico" value="Sim"> Sim</label>
+            <label class="choice-item" onclick="selectRadioInline(this,'dresscode-unico');showCond('dresscode-unico-block',false)"><input type="radio" name="dresscode-unico" value="Não"> Não</label>
+          </div>
+        </div>
+        <div class="cond-block col-2" id="dresscode-unico-block">
+          <div class="grid g2">
+            <div class="field">
+              <label class="field-label">Tipo de dress code <span class="req">*</span></label>
+              <input type="text" id="dresscode-unico-tipo" placeholder="Ex: Esporte fino, Black tie, Casual chic...">
+            </div>
+            <div class="field">
+              <label class="field-label">Link para inspirações <span class="opt-tag">Opcional</span></label>
+              <input type="url" id="dresscode-unico-link" placeholder="Inspirações, moodboards, board no Pinterest, etc">
+            </div>
+            <div class="field col-2">
+              <label class="field-label">Complementos ao dress code <span class="opt-tag">Opcional</span></label>
+              <input type="text" id="dresscode-unico-desc" placeholder="Passeio Completo, All Black, etc...">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Múltiplos dias -->
+  <div class="cond-block" id="duracao-multiplos">
+    <div id="dias-container"></div>
+    <button class="btn-add-dia" onclick="addDia()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+      Adicionar dia / evento
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SEÇÃO 02 — DADOS DO CLIENTE
+════════════════════════════════════════════ -->
+<div class="section-card" id="sec-pessoas">
+  <div class="section-head">
+    <div class="section-num">Seção 02</div>
+    <div class="section-title">Dados do Cliente</div>
+    <div class="section-desc">Informações do(s) cliente(s) do evento.</div>
+  </div>
+  <div class="grid g2">
+    <div class="field col-2">
+      <label class="field-label">Nome(s) para exibição no site <span class="req">*</span></label>
+      <input type="text" id="nomes-clientes" placeholder="Ex: Ana & Pedro (casamento) · Marina Silva (15 anos) · João & Maria (bodas) · Sofia (infantil) · Carlos Eduardo (adulto)">
+    </div>
+    <div class="field">
+      <label class="field-label">Idade <span class="opt-tag">Opcional</span></label>
+      <input type="text" id="cliente-idade" placeholder="Ex: 15 anos, 50 anos...">
+      <span class="field-hint">Preencha caso seja um aniversário e queira exibir a idade no site.</span>
+    </div>
+    <div class="field">
+      <label class="field-label">Instagram <span class="opt-tag">Opcional</span></label>
+      <input type="text" id="cliente-instagram" placeholder="@perfil">
+      <span class="field-hint">Para exibição no site, se desejar.</span>
+    </div>
+  </div>
+  <div class="field" style="margin-top:24px">
+    <label class="field-label">Observações sobre o cliente <span class="opt-tag">Opcional</span></label>
+    <span class="field-hint" style="margin-bottom:6px">Preencha com informações adicionais que você ache pertinente de ser adicionado no site.</span>
+    <textarea id="obs-cliente" rows="3" placeholder="Apelido que gosta de usar, Precisará de texto bilíngue, etc"></textarea>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SEÇÃO 03 — REPRESENTANTE / CERIMONIAL
+════════════════════════════════════════════ -->
+<div class="section-card" id="sec-cerimonial">
+  <div class="section-head">
+    <div class="section-num">Seção 03</div>
+    <div class="section-title">Representante / Cerimonial</div>
+    <div class="section-desc">Dados do responsável ou assessoria que acompanha o projeto.</div>
+  </div>
+
+  <!-- Toggle sem cerimonial -->
+  <label class="cerim-skip-btn" id="cerim-skip-btn" onclick="toggleSemCerimonial()">
+    <div class="toggle-sw"><input type="checkbox" id="tog-sem-cerim"><div class="toggle-track"></div></div>
+    <div class="cerim-skip-label">Este evento não contará com assessoria ou representante</div>
+  </label>
+  <div class="info-note cerim-skip-note" id="cerim-skip-note" style="display:none;margin-bottom:4px">Entendido. Esta seção foi marcada como não aplicável ao seu evento.</div>
+
+  <div id="cerim-fields">
+  <div class="grid g2" style="margin-top:20px">
+    <div class="field">
+      <label class="field-label">Nome da empresa / cerimonial <span class="req">*</span></label>
+      <input type="text" id="cerim-empresa" placeholder="Ex: Studio Arco, Assessoria Bella...">
+    </div>
+    <div class="field">
+      <label class="field-label">Nome do responsável <span class="req">*</span></label>
+      <input type="text" id="cerim-responsavel" placeholder="Ex: Maria Silva">
+    </div>
+    <div class="field col-2">
+      <span class="field-hint" style="margin-bottom:6px">Informe e-mail ou WhatsApp — ou ambos, se preferir.</span>
+    </div>
+    <div class="field">
+      <label class="field-label">E-mail do cerimonial <span class="req">*</span></label>
+      <input type="email" id="cerim-email" placeholder="contato@cerimonial.com.br">
+      <span class="field-hint">Para exibição no site.</span>
+    </div>
+    <div class="field">
+      <label class="field-label">WhatsApp do cerimonial <span class="req">*</span></label>
+      <input type="tel" id="cerim-whatsapp" placeholder="(00) 9 0000-0000">
+      <span class="field-hint">Para exibição no site.</span>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SEÇÃO 04 — LOGÍSTICA PARA CONVIDADOS
+════════════════════════════════════════════ -->
+<div class="section-card" id="sec-logistica">
+  <div class="section-head">
+    <div class="section-num">Seção 04</div>
+    <div class="section-title">Logística para Convidados</div>
+    <div class="section-desc">Hospedagem, transporte, recomendações locais e parceiros de viagem que serão exibidos no site.</div>
+  </div>
+
+  <!-- Hospedagem -->
+  <div class="block-label">Hospedagem</div>
+  <div class="field" style="margin-bottom:16px">
+    <label class="field-label">Haverá indicação de hospedagem no site? <span class="req">*</span></label>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'hosp-status');showCond('hosp-block',true)"><input type="radio" name="hosp-status" value="Sim"> Sim</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'hosp-status');showCond('hosp-block',false)"><input type="radio" name="hosp-status" value="Não"> Não</label>
+    </div>
+  </div>
+  <div class="cond-block" id="hosp-block">
+    <div id="hoteis-container"></div>
+    <button class="btn-add-dia" onclick="addHotel()" style="margin-bottom:4px">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+      Adicionar hotel / pousada
+    </button>
+  </div>
+
+
+  <!-- Transporte -->
+  <div class="block-label">Transporte</div>
+  <p style="font-size:13px;color:var(--text-muted);font-weight:300;line-height:1.7;margin-bottom:14px">Selecione os tipos de transporte que serão informados no site. Cada opção abrirá campos específicos.</p>
+  <div class="field" style="margin-bottom:16px">
+    <label class="field-label">Haverá informações de transporte no site? <span class="req">*</span></label>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'transp-status');showCond('transp-block',true)"><input type="radio" name="transp-status" value="Sim"> Sim</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'transp-status');showCond('transp-block',false)"><input type="radio" name="transp-status" value="Não"> Não</label>
+    </div>
+  </div>
+  <div class="cond-block" id="transp-block">
+
+    <!-- Transporte local -->
+    <div class="field" style="margin-bottom:8px">
+      <label class="choice-item" style="margin-bottom:8px" onclick="toggleCheck(this);toggleRec('transp-local-block',this)">
+        <input type="checkbox" name="transp-categoria" value="Transporte local"> <span><strong>Transporte local</strong> — deslocamento dentro da cidade / até o local do evento</span>
+      </label>
+    </div>
+    <div class="cond-block" id="transp-local-block" style="margin-left:0;margin-bottom:16px">
+      <div class="dia-block">
+        <div class="field" style="margin-bottom:12px">
+          <label class="field-label">Tipos disponíveis <span class="req">*</span></label>
+          <div class="choice-group" style="gap:6px">
+            <label class="choice-item" onclick="toggleCheck(this);toggleRec('tl-chegar-block',this)"><input type="checkbox" name="transp-local-tipo" value="Como chegar ao local"> Como chegar ao local</label>
+            <div class="cond-block" id="tl-chegar-block"><div class="field" style="margin:6px 0 4px 0"><label class="field-label">Informações — Como chegar ao local <span class="req">*</span></label><span class="field-hint" style="margin-bottom:4px">Inclua recomendações de como chegar ao evento, à acomodação, ao aeroporto e a outros locais aplicáveis.</span><textarea id="tl-chegar-obs" placeholder="Rotas, endereço GPS, dicas de acesso, transporte recomendado..."></textarea></div></div>
+
+            <label class="choice-item" onclick="toggleCheck(this);toggleRec('tl-van-block',this)"><input type="checkbox" name="transp-local-tipo" value="Van / transfer"> Van / transfer</label>
+            <div class="cond-block" id="tl-van-block"><div class="field" style="margin:6px 0 4px 0"><label class="field-label">Informações — Van / transfer <span class="req">*</span></label><span class="field-hint" style="margin-bottom:4px">Inclua opções de van/transfer para o <strong>evento</strong>, <strong>acomodação</strong>, <strong>aeroporto</strong>, etc.</span><textarea id="tl-van-obs" placeholder="Horários, pontos de embarque, empresa responsável, contato..."></textarea></div></div>
+
+            <label class="choice-item" onclick="toggleCheck(this);toggleRec('tl-carro-block',this)"><input type="checkbox" name="transp-local-tipo" value="Aluguel de carro"> Aluguel de carro</label>
+            <div class="cond-block" id="tl-carro-block"><div class="field" style="margin:6px 0 4px 0"><label class="field-label">Informações — Aluguel de carro <span class="req">*</span></label><textarea id="tl-carro-obs" placeholder="Locadoras recomendadas, dicas, links..."></textarea></div></div>
+
+            <label class="choice-item" onclick="toggleCheck(this);toggleRec('tl-app-block',this)"><input type="checkbox" name="transp-local-tipo" value="Aplicativo (Uber, 99...)"> Aplicativo (Uber, 99...)</label>
+            <div class="cond-block" id="tl-app-block"><div class="field" style="margin:6px 0 4px 0"><label class="field-label">Informações — Aplicativo <span class="req">*</span></label><textarea id="tl-app-obs" placeholder="Disponibilidade na região, dicas, ponto de referência..."></textarea></div></div>
+
+            <label class="choice-item" onclick="toggleCheck(this);toggleRec('tl-outros-block',this)"><input type="checkbox" name="transp-local-tipo" value="Outros"> Outros</label>
+            <div class="cond-block" id="tl-outros-block"><div class="grid g2" style="margin:6px 0 4px 0"><div class="field"><label class="field-label">Nome do transporte <span class="req">*</span></label><input type="text" id="tl-outros-desc" placeholder="Ex: Bicicleta, Barco, Trem..."></div><div class="field"><label class="field-label">Informações sobre o transporte <span class="req">*</span></label><textarea id="tl-outros-obs" placeholder="Detalhes, contatos, links..."></textarea></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transporte para outra cidade -->
+    <div class="field" style="margin-bottom:8px">
+      <label class="choice-item" style="margin-bottom:8px" onclick="toggleCheck(this);toggleRec('transp-cidade-block',this)">
+        <input type="checkbox" name="transp-categoria" value="Transporte para outra cidade"> <span><strong>Transporte para outra cidade</strong> — passagens aéreas, ônibus, carro</span>
+      </label>
+    </div>
+    <div class="cond-block" id="transp-cidade-block" style="margin-bottom:16px">
+      <div class="dia-block">
+        <p style="font-size:13px;color:var(--text-muted);font-weight:300;line-height:1.7;margin-bottom:14px">Como será organizado o transporte até a cidade do evento?</p>
+
+        <!-- Agência de viagens -->
+        <div class="field" style="margin-bottom:8px">
+          <label class="choice-item" onclick="toggleCheck(this);toggleRec('transp-agencia-block',this)">
+            <input type="checkbox" name="transp-cidade-tipo" value="Agência de viagens contratada"> Agência de viagens contratada
+          </label>
+        </div>
+        <div class="cond-block" id="transp-agencia-block" style="margin-bottom:12px">
+          <div class="grid g2" style="margin-top:8px">
+            <div class="field"><label class="field-label">Nome da agência <span class="req">*</span></label><input type="text" id="agencia-nome" placeholder="Nome da agência de viagens"></div>
+            <div class="field"><label class="field-label">Nome do responsável <span class="req">*</span></label><input type="text" id="agencia-resp" placeholder="Nome do contato"></div>
+            <div class="field"><label class="field-label">E-mail <span class="req">*</span></label><input type="email" id="agencia-email" placeholder="agencia@email.com"></div>
+            <div class="field"><label class="field-label">WhatsApp <span class="req">*</span></label><input type="tel" id="agencia-whatsapp" placeholder="(00) 9 0000-0000"></div>
+          </div>
+        </div>
+
+        <!-- Convidado resolve -->
+        <div class="field" style="margin-bottom:8px">
+          <label class="choice-item" onclick="toggleCheck(this);toggleRec('transp-proprio-block',this)">
+            <input type="checkbox" name="transp-cidade-tipo" value="Convidado resolve as próprias passagens"> Convidado resolve as próprias passagens
+          </label>
+        </div>
+        <div class="cond-block" id="transp-proprio-block" style="margin-top:8px">
+          <div class="field">
+            <label class="field-label">Orientações aos convidados <span class="opt-tag">Opcional</span></label>
+            <textarea id="transp-proprio-obs" placeholder="Ex: Aeroporto mais próximo, companhias recomendadas, dicas de viagem..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recomendações -->
+  <div class="block-label">Recomendações Locais</div>
+  <div class="field" style="margin-bottom:14px">
+    <label class="field-label">Quais categorias deseja incluir no site? <span class="opt-tag">Opcional</span></label>
+    <div class="check-grid">
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-restaurantes',this)"><input type="checkbox" name="rec-tipo" value="Restaurantes / Bares"> Restaurantes / Bares</label>
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-passeios',this)"><input type="checkbox" name="rec-tipo" value="Passeios"> Passeios</label>
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-salao',this)"><input type="checkbox" name="rec-tipo" value="Salão de beleza"> Salão de beleza</label>
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-hosp',this)"><input type="checkbox" name="rec-tipo" value="Hospedagens"> Hospedagens</label>
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-museus',this)"><input type="checkbox" name="rec-tipo" value="Museus"> Museus</label>
+      <label class="choice-item" onclick="toggleCheck(this);toggleRec('rec-outros',this)"><input type="checkbox" name="rec-tipo" value="Outros"> Outros</label>
+    </div>
+  </div>
+  <div class="cond-block" id="rec-restaurantes"><div class="field" style="margin-bottom:10px"><label class="field-label">Restaurantes / Bares — detalhes <span class="req">*</span></label><textarea id="rec-restaurantes-txt" placeholder="Nome, endereço, link, observações..."></textarea></div></div>
+  <div class="cond-block" id="rec-passeios"><div class="field" style="margin-bottom:10px"><label class="field-label">Passeios — detalhes <span class="req">*</span></label><textarea id="rec-passeios-txt" placeholder="Nome, descrição, link, observações..."></textarea></div></div>
+  <div class="cond-block" id="rec-salao">
+    <div class="grid g2" style="margin-bottom:10px">
+      <div class="field"><label class="field-label">Nome do salão <span class="req">*</span></label><input type="text" id="rec-salao-nome" placeholder="Nome do salão de beleza"></div>
+      <div class="field"><label class="field-label">Como reservar <span class="req">*</span></label><input type="text" id="rec-salao-reserva" placeholder="Instagram, WhatsApp, link de agendamento..."></div>
+      <div class="field col-2"><label class="field-label">Informações adicionais <span class="opt-tag">Opcional</span></label><textarea id="rec-salao-txt" placeholder="Endereço, serviços oferecidos, observações..."></textarea></div>
+    </div>
+  </div>
+  <div class="cond-block" id="rec-hosp"><div class="field" style="margin-bottom:10px"><label class="field-label">Hospedagens — detalhes <span class="req">*</span></label><textarea id="rec-hosp-txt" placeholder="Nome, link de reserva, observações..."></textarea></div></div>
+  <div class="cond-block" id="rec-museus"><div class="field" style="margin-bottom:10px"><label class="field-label">Museus — detalhes <span class="req">*</span></label><textarea id="rec-museus-txt" placeholder="Nome, endereço, link, observações..."></textarea></div></div>
+  <div class="cond-block" id="rec-outros"><div class="field" style="margin-bottom:10px"><label class="field-label">Outros — detalhes <span class="req">*</span></label><textarea id="rec-outros-txt" placeholder="Descreva outras recomendações..."></textarea></div></div>
+  <div class="field" style="margin-top:24px">
+    <label class="field-label">Observações sobre a logística <span class="opt-tag">Opcional</span></label>
+    <span class="field-hint" style="margin-bottom:6px">Preencha com informações adicionais sobre a logística do evento, qualquer detalhe pertinente que envolva <strong>hospedagem, transporte ou recomendações</strong> para os convidados.</span>
+    <textarea id="obs-logistica" rows="3" placeholder="Ex: distância entre o hotel e o local, dicas de segurança, horários críticos..."></textarea>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SEÇÃO 05 — DADOS DO SITE
+════════════════════════════════════════════ -->
+<div class="section-card" id="sec-site">
+  <div class="section-head">
+    <div class="section-num">Seção 05</div>
+    <div class="section-title">Dados do Site</div>
+    <div class="section-desc">Conteúdo, funcionalidades, domínio e observações finais.</div>
+  </div>
+
+  <!-- História -->
+  <div class="block-label">Conteúdo</div>
+  <div class="field" style="margin-bottom:16px">
+    <label class="field-label">Deseja incluir uma história ou frase no site? <span class="req">*</span></label>
+    <span class="field-hint" style="margin-bottom:6px">Ex: "Como nos conhecemos", "Nossa história" — muito usado em sites de casamento.</span>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'historia-status');showCond('historia-block',true)"><input type="radio" name="historia-status" value="Sim"> Sim</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'historia-status');showCond('historia-block',false)"><input type="radio" name="historia-status" value="Não"> Não</label>
+    </div>
+  </div>
+  <div class="cond-block" id="historia-block" style="margin-bottom:8px">
+    <div class="field">
+      <label class="field-label">Conte a história ou frase <span class="opt-tag">Opcional</span></label>
+      <textarea id="historia-texto" rows="8" style="min-height:120px" placeholder="Escreva livremente — como se conheceram, momentos marcantes, o pedido..."></textarea>
+    </div>
+  </div>
+
+  <!-- RSVP -->
+  <div class="block-label">RSVP — Confirmação de Presença</div>
+  <p style="font-size:13px;color:var(--text-muted);font-weight:300;line-height:1.7;margin-bottom:14px">Selecione a(s) plataforma(s) que serão utilizadas para confirmação de presença. Cada opção abrirá campos específicos.</p>
+  <div class="field" style="margin-bottom:8px">
+    <label class="choice-item" onclick="toggleCheck(this);toggleRec('rsvp-icasei-block',this)" style="margin-bottom:6px"><input type="checkbox" name="rsvp-plataforma" value="Site de casamento (ex: iCasei)"> Site de casamento (ex: iCasei, outros, etc)</label>
+    <div class="cond-block" id="rsvp-icasei-block" style="margin-bottom:8px"><div class="grid g2" style="margin-top:8px"><div class="field"><label class="field-label">Link da plataforma <span class="req">*</span></label><input type="url" id="rsvp-icasei-link" placeholder="https://..."><span class="field-hint">Se ainda não tiver, deixe em branco.</span></div><div class="field"><label class="field-label">Observações <span class="req">*</span></label><input type="text" id="rsvp-icasei-obs" placeholder="Prazo, instruções..."></div></div></div>
+
+    <label class="choice-item" onclick="toggleCheck(this);toggleRec('rsvp-codemy-block',this)" style="margin-bottom:6px"><input type="checkbox" name="rsvp-plataforma" value="Site de gestão de QR Code (ex: Code My Party)"> Site de gestão de QR Code (ex: Code My Party, outros, etc)</label>
+    <div class="cond-block" id="rsvp-codemy-block" style="margin-bottom:8px"><div class="grid g2" style="margin-top:8px"><div class="field"><label class="field-label">Link da plataforma <span class="req">*</span></label><input type="url" id="rsvp-codemy-link" placeholder="https://..."><span class="field-hint">Se ainda não tiver, deixe em branco.</span></div><div class="field"><label class="field-label">Observações <span class="req">*</span></label><input type="text" id="rsvp-codemy-obs" placeholder="Prazo, instruções..."></div></div></div>
+
+    <label class="choice-item" onclick="toggleCheck(this);toggleRec('rsvp-email-block',this)" style="margin-bottom:6px"><input type="checkbox" name="rsvp-plataforma" value="E-mail do cerimonial"> E-mail do cerimonial</label>
+    <div class="cond-block" id="rsvp-email-block" style="margin-bottom:8px"><div class="field" style="margin-top:8px"><label class="field-label">E-mail para confirmações <span class="req">*</span></label><input type="email" id="rsvp-email-cerim" placeholder="contato@cerimonial.com.br"><span class="field-hint">E-mail que receberá as confirmações de presença dos convidados.</span></div></div>
+
+    <label class="choice-item" onclick="toggleCheck(this);toggleRec('rsvp-tel-block',this)" style="margin-bottom:6px"><input type="checkbox" name="rsvp-plataforma" value="WhatsApp do cerimonial"> WhatsApp do cerimonial</label>
+    <div class="cond-block" id="rsvp-tel-block" style="margin-bottom:8px"><div class="grid g2" style="margin-top:8px"><div class="field"><label class="field-label">WhatsApp / Telefone <span class="req">*</span></label><input type="tel" id="rsvp-tel-cerim" placeholder="(00) 9 0000-0000"></div><div class="field"><label class="field-label">Observações <span class="req">*</span></label><input type="text" id="rsvp-tel-obs" placeholder="Horário de atendimento, instruções..."></div></div></div>
+
+    <label class="choice-item" onclick="toggleCheck(this);toggleRec('rsvp-outro-block',this)" style="margin-bottom:6px"><input type="checkbox" name="rsvp-plataforma" value="Outro"> Outro</label>
+    <div class="cond-block" id="rsvp-outro-block" style="margin-bottom:8px"><div class="grid g2" style="margin-top:8px"><div class="field col-2"><label class="field-label">Nome da plataforma <span class="req">*</span></label><input type="text" id="rsvp-outro-nome" placeholder="Nome da plataforma utilizada"></div><div class="field"><label class="field-label">Link da plataforma <span class="req">*</span></label><input type="url" id="rsvp-outro-link" placeholder="https://..."></div><div class="field"><label class="field-label">Observações <span class="req">*</span></label><input type="text" id="rsvp-outro-obs" placeholder="Prazo, instruções..."></div></div></div>
+
+    <label class="choice-item" onclick="toggleCheck(this)"><input type="checkbox" name="rsvp-plataforma" value="Não sei"> Não sei / A definir</label>
+  </div>
+
+  <!-- Lista de presentes -->
+  <div class="block-label">Lista de Presentes</div>
+  <div class="field" style="margin-bottom:16px">
+    <label class="field-label">Haverá lista de presentes no site? <span class="req">*</span></label>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'lista-status');showCond('lista-block',true)"><input type="radio" name="lista-status" value="Sim"> Sim</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'lista-status');showCond('lista-block',false)"><input type="radio" name="lista-status" value="Não"> Não</label>
+    </div>
+  </div>
+  <div class="cond-block" id="lista-block">
+    <div class="grid g2">
+      <div class="field">
+        <label class="field-label">Plataforma utilizada <span class="opt-tag">Opcional</span></label>
+        <input type="text" id="lista-plat" placeholder="Ex: Lover, Zaffari, Lista própria...">
+      </div>
+      <div class="field">
+        <label class="field-label">Link da lista <span class="opt-tag">Opcional</span></label>
+        <input type="url" id="lista-link" placeholder="https://...">
+        <span class="field-hint">Se ainda não tiver, deixe em branco.</span>
+      </div>
+    </div>
+  </div>
+  <div class="field" style="margin-top:14px">
+    <label class="field-label">Indicações de numeração / tamanho e preferências em geral <span class="opt-tag">Opcional</span></label>
+    <input type="text" id="lista-numeracao" placeholder="Ex: P, 36, Anéis: Aro 14, Prata ou Dourado...">
+    <span class="field-hint">Informe tamanhos de roupas, calçados, anéis ou outras preferências para orientar os convidados.</span>
+  </div>
+
+  <!-- Domínio -->
+  <div class="block-label">Domínio</div>
+  <div class="field" style="margin-bottom:16px">
+    <label class="field-label">Já possui domínio registrado? <span class="req">*</span></label>
+    <div class="choice-group choice-inline">
+      <label class="choice-item" onclick="selectRadioInline(this,'dom-status');showCond('dom-sim',true);showCond('dom-nao',false);showCond('dom-naosab',false)"><input type="radio" name="dom-status" value="Sim"> Sim</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'dom-status');showCond('dom-sim',false);showCond('dom-nao',true);showCond('dom-naosab',false)"><input type="radio" name="dom-status" value="Não"> Não</label>
+      <label class="choice-item" onclick="selectRadioInline(this,'dom-status');showCond('dom-sim',false);showCond('dom-nao',false);showCond('dom-naosab',true)"><input type="radio" name="dom-status" value="Não sei"> Não sei</label>
+    </div>
+  </div>
+  <div class="cond-block" id="dom-sim">
+    <div class="grid g2">
+      <div class="field"><label class="field-label">Domínio atual <span class="opt-tag">Opcional</span></label><input type="text" id="dom-url" placeholder="Ex: anaejoao.com.br"></div>
+      <div class="field"><label class="field-label">Provedor do domínio <span class="opt-tag">Opcional</span></label><input type="text" id="dom-provedor" placeholder="Ex: Registro.br, GoDaddy..."></div>
+      <div class="field col-2">
+        <label class="field-label">Tem acesso ao painel do domínio? <span class="opt-tag">Opcional</span></label>
+        <div class="choice-group choice-inline">
+          <label class="choice-item" onclick="selectRadioInline(this,'dom-acesso')"><input type="radio" name="dom-acesso" value="Sim, tenho acesso"> Sim</label>
+          <label class="choice-item" onclick="selectRadioInline(this,'dom-acesso')"><input type="radio" name="dom-acesso" value="Não tenho acesso"> Não</label>
+          <label class="choice-item" onclick="selectRadioInline(this,'dom-acesso')"><input type="radio" name="dom-acesso" value="Preciso de ajuda"> Preciso de ajuda</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cond-block" id="dom-nao">
+    <div class="field">
+      <label class="field-label">Domínio desejado <span class="opt-tag">Opcional</span></label>
+      <input type="text" id="dom-desejado" placeholder="Ex: anaejoao.com.br">
+      <span class="field-hint">Se tiver preferência, informe aqui. Caso o domínio não esteja disponível, faremos novas sugestões de opções disponíveis para você escolher.</span>
+    </div>
+  </div>
+  <div class="cond-block" id="dom-naosab">
+    <div class="info-note">Sem problema. Vamos verificar isso juntos no início do projeto.</div>
+  </div>
+
+  <!-- Prazos do site -->
+  <div class="block-label">Prazos</div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="field">
+      <label class="field-label">Data limite para entrega do site <span class="opt-tag">Opcional</span></label>
+      <input type="date" id="site-data-entrega">
+      <span class="field-hint">Prazo máximo para o site estar pronto para uso.</span>
+    </div>
+    <div class="field">
+      <label class="field-label">Período desejado que o site fique no ar <span class="req">*</span></label>
+      <div class="choice-group choice-inline" style="margin-top:4px">
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',false)"><input type="radio" name="periodo-ar" value="3 meses"> 3 meses</label>
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',false)"><input type="radio" name="periodo-ar" value="6 meses"> 6 meses</label>
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',false)"><input type="radio" name="periodo-ar" value="9 meses"> 9 meses</label>
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',false)"><input type="radio" name="periodo-ar" value="12 meses"> 12 meses</label>
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',false)"><input type="radio" name="periodo-ar" value="Definitivo"> Definitivo</label>
+        <label class="choice-item" onclick="selectRadioInline(this,'periodo-ar');showCond('periodo-outro-block',true)"><input type="radio" name="periodo-ar" value="Outro período"> Outro período</label>
+      </div>
+      <div class="cond-block" id="periodo-outro-block" style="margin-top:8px">
+        <input type="text" id="site-periodo-ar" placeholder="Descreva o período desejado...">
+      </div>
+      <span class="field-hint">Por quanto tempo o site precisa estar publicado e acessível.</span>
+    </div>
+  </div>
+
+  <!-- Observações -->
+  <div class="block-label">Observações Extras <span class="opt-tag" style="font-size:9px">Opcional</span></div>
+  <div class="field">
+    <span class="field-hint" style="margin-bottom:6px">Preencha com informações adicionais sobre o site, qualquer detalhe relevante que envolva <strong>conteúdo, funcionalidades ou preferências</strong> para o projeto.</span>
+    <textarea id="obs" rows="5" placeholder="Dúvidas, restrições, preferências ou qualquer informação relevante para o projeto..."></textarea>
+  </div>
+</div>
+
+<!-- PASSO A PASSO ENVIO -->
+<div class="send-steps">
+  <div class="send-steps-title">Como enviar</div>
+  <div class="send-step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <div class="step-label">Baixar o PDF</div>
+      <div class="step-desc">Gera um documento com todas as suas respostas.</div>
+      <button class="btn btn-primary" onclick="generatePDF()" style="margin-top:10px">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="3" rx="1"/></svg>
+        Baixar PDF
+      </button>
+    </div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="send-step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <div class="step-label">Enviar pelo WhatsApp</div>
+      <div class="step-desc">Abre o WhatsApp com uma mensagem pronta. Anexe o PDF baixado no passo anterior antes de enviar.</div>
+      <button class="btn btn-wa" onclick="sendWhatsApp()" style="margin-top:10px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar pelo WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<p class="foot">Suas informações são usadas exclusivamente para configuração do seu projeto.<br><a href="https://wa.me/5531988230022" target="_blank">Fale conosco pelo WhatsApp</a> · <a href="mailto:dani@pinupdesign.com.br">dani@pinupdesign.com.br</a></p>
+
+<div style="text-align:center;margin-top:32px;opacity:.55">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.89 135.85" style="width:120px;height:auto;display:inline-block"><defs><style>.lf{fill:#581119;fill-rule:evenodd}</style></defs><path class="lf" d="M26.74,25.68c2.05-.41.23,4.17.42,6.22.83,9.22,10.9,12.37,18.64,13.46,3.41.48,6.93.66,10.57.55,3.64-.12,7.07-.5,10.31-1.17,1.23-3.18,2.61-6.02,4.13-8.52,1.52-2.51,3.1-4.6,4.74-6.28,2.51-2.56,6.02-5.18,9.8-4.84,7.47.67,5.57,9.65,2.39,13.98-1.4,2.07-3.34,4.05-5.81,5.93-2.47,1.88-5.01,3.23-7.61,4.05-1.33,3.77-2.33,7.68-3.33,11.54,5.75-7.38,12.65-15.83,20.21-21.28,5.87-4.22,14.66-8.4,19.08-1.06,3.01,5,1.89,12.37.53,17.67-3.14,11.82-10.62,24.86-22.07,30.12-7.66,3.52-19.9,2.23-18.18-8.72.22-1.43.49-2.62.8-3.57.3-.77.99-.98,1.66-.49,1.11.78,2.56,1.3,4.35,1.56,11.39,1.66,21.37-14.82,24.56-24.27.74-2.18,2.61-7.47.32-9.26-5.93-2.16-17.86,11.9-21.32,15.87-11.39,13.07-13.09,22-17.18,38.37-1.24,4.84-3.48,10.37-7.82,13.25-6.62,4.4-15.34,1.15-17.27-6.83-1.51-6.26,1.04-1.63,4.54-3.25,1.22-.57,2.26-1.29,3.12-2.17,7.09-7.24,12.74-32.48,17.48-44.19-3.55,1.14-7.55,2.03-12.02,2.67-7.5,1.07-17.46.73-24.64-1.95-7.78-2.98-17.43-11.98-12.27-20.75,2.38-4.03,7.48-5.78,11.88-6.66h0ZM82.57,32.73c-2.29,2.34-4.35,6.31-5.72,9.31,1.42-.73,2.69-1.61,3.83-2.65,1.69-1.55,3.52-3.62,4.45-5.74,1.21-2.75-1.12-2.39-2.56-.92Z"/><path class="lf" d="M136.92,57.94c.16.63.13,1.22-.1,1.78-.76,3.01-1.65,5.65-2.65,7.92-1.01,2.26-2.04,4.23-3.09,5.9-2.09,3.33-5.86,7.39-9.46,9.11-4.77,2.26-10.97-.07-11.86-5.46-.87-5.29,1.25-10.47,3.83-14.99,1.84-3.53,3.38-7.26,4.1-11.19.26-1.43.39-2.61.38-3.56,0-.95-.06-1.7-.14-2.25-.16-.63.07-.95.7-.96,2.68-.7,6.3-.8,7.79,2,.52.98.52,2.43-.02,4.33-.61,2.22-1.28,4.56-2.01,7.02-.73,2.46-1.48,4.8-2.24,7.02-1.33,3.73-.42,8.5,3.78,4.77,1.22-1.08,2.41-2.4,3.58-3.95,1.17-1.55,2.26-3.17,3.27-4.84,1.01-1.67,1.75-2.94,2.22-3.82.16-.32.39-.48.71-.48.32,0,.55.15.72.47.16.16.26.35.3.59.04.24.1.43.18.59h0ZM123.83,42.41c-1.19-.07-2.18-.35-2.97-.86-.8-.51-1.16-1.08-1.08-1.71.07-.63.52-1.17,1.35-1.61.83-.44,1.83-.63,3.02-.56,1.11.15,2.06.47,2.86.98.8.51,1.16,1.08,1.08,1.71-.07.63-.52,1.17-1.35,1.61-.83.44-1.79.59-2.9.44h0Z"/><path class="lf" d="M156.26,82.07c-1.02.41-2.21.69-3.55.86-8.03,1.02-9.21-6.48-8.07-12.5.61-2.7,1.69-5.63,3.24-8.81.7-1.51,1.51-3.08,2.45-4.71.47-.83,2.1-3.19,2.1-4.11-.01-1.29-2.83,2.72-2.85,2.75-2.18,3.06-4.26,6.19-6.17,9.44-1.72,2.94-3.2,5.96-4.48,9.06-1.27,3.1-1.7,5.63-1.29,7.61.17.87-.19,1.31-1.06,1.32-2.89.03-5.2-.72-7.15-2.96-.72-.82-1.25-1.95-1.58-3.37-.61-2.53.31-5.81,1.17-8.2.65-1.83,1.68-3.97,3.08-6.44,2.72-4.77,4.54-8.53,5.47-11.27.92-2.74,1.34-4.7,1.25-5.89,0-.71.34-1.07,1.06-1.08,2.41-.02,4.49.9,5.13,3.39.53,2.03-.89,5.68-1.35,7.84,2.57-4.06,5.13-7.05,7.68-8.97,2.55-1.92,4.82-2.62,6.8-2.08,2.81.99,3.12,4.84,2.68,7.33-.37,2.53-.94,4.75-1.71,6.66-.82,2.02-3.06,7.45-2.93,9.46.19,3.02,1.93,3.79,4.41,1.68,1.22-1.04,2.41-2.36,3.58-3.95,1.17-1.59,2.26-3.23,3.27-4.9.53-.88.99-1.64,1.37-2.3,2.67-4.62,3.06.15,2.24,2.89-.72,2.41-1.51,4.57-2.35,6.46-2.35,5.29-6.77,12.45-12.43,14.77h0Z"/><path class="lf" d="M189.17,50.83c-.54,2.09-1.12,4.23-1.74,6.4-.92,3.23-2.27,6.45-3.04,9.67-.8,4.64,1.38,5.03,4.41,1.58,3.96-4.5,7.63-11.97,8.74-17.97.27-1.45.4-2.65.39-3.62,0-.96-.06-1.73-.14-2.29-.17-.64.03-.96.59-.97,2.69-.7,6.54-.87,7.97,2.03.49,1,.51,2.46.04,4.4-.62,2.26-1.3,4.63-2.04,7.13-.74,2.5-1.5,4.87-2.28,7.13-.55,1.53-.82,2.68-.81,3.44.03,3.08,2.5,3.31,4.65,1.4,1.23-1.1,2.45-2.43,3.63-4.01,1.19-1.58,2.3-3.21,3.33-4.91,1.03-1.7,1.78-2.99,2.25-3.88.16-.32.4-.49.72-.49.32,0,.56.15.73.48.16.16.26.36.31.6.04.24.1.44.19.6.08.4.05,1-.1,1.81-.77,3.06-1.67,5.74-2.69,8.04-1.02,2.3-2.07,4.3-3.13,5.99-1.07,1.7-2.14,3.09-3.21,4.19-1.07,1.1-2.05,2.01-2.92,2.74-3.96,3.47-10.62,5-14.1-.1-.65-.96-1.1-2-1.36-3.12-1.35,1.7-2.82,3.12-4.42,4.26-6.83,4.88-14.39.15-13.09-8.18.15-1.21.56-2.74,1.22-4.59.66-1.85,1.71-4.03,3.13-6.54,2.76-4.85,4.61-8.66,5.55-11.44.94-2.78,1.36-4.77,1.27-5.98,0-.72.35-1.09,1.07-1.09,2.44-.02,4.55.91,5.21,3.44.25.96.14,2.25-.32,3.86h0Z"/><path class="lf" d="M286.86,61.02c4.24,5.93-.24,13.92-7.86,15.44-10.7,2.12-29.71-5.8-40.15-8.05-.63,1.37-1.4,2.88-2.31,4.54-3.26,5.94-10.76,12.62-17.87,8.25-1.09-.67-1.96-1.57-2.62-2.68-.82,3.73-2.12,10.86-.58,14.46.41.96,1.06,1.6,1.95,1.91.46.15.72.85.37,1.2-3.62,3.69-11.24,2.99-13.27-2.1-2.44-6.13,1.51-16.73,3.88-22.14,2.04-4.76,3.61-8.79,4.7-12.09,1.09-3.3,1.89-6.04,2.39-8.21.5-2.17.75-3.86.73-5.07-.01-1.2-.06-2.09-.15-2.65-.17-.72.11-1.17.83-1.33,2.52-.3,5.95-.18,7.61,2.03.57.76.82,1.82.75,3.18,4.61-4.7,12.4-7.39,15.79.57,1.4,3.28,1.44,7.66.13,13.13,9.28,2.55,28.82,4.97,37.51,2.95,2.88-.67,4.64-2.17,5.26-4.51.45-1.86,2.53.66,2.9,1.18h0ZM220.6,62.2c1.36-.66,3-1.15,4.92-1.49,1.92-.34,4.29-.44,7.1-.31.45-1.23.86-2.47,1.17-3.75.46-1.93.69-3.44.68-4.52-.04-3.83-2.3-5.03-5.5-2.36-3.2,2.67-7.08,8.41-8.37,12.43h0ZM220.91,68.95c2.34,3.89,6.69.4,8.53-2.13-2.41-.06-4.3.12-5.66.54-1.36.41-2.32.95-2.88,1.59h0Z"/><path class="lf" d="M234,86.21c2.48,0,3.76,1.57,3.84,4.72,0,3.11-1.24,4.68-3.73,4.7l-4.9-.03v-.05c.31-.17.47-.47.47-.89v-7.49c0-.38-.16-.68-.47-.91v-.03l4.8-.03h0ZM231.67,87.49v6.86h1.85c1.43,0,2.13-1.1,2.11-3.29v-.13c0-2.27-.73-3.42-2.17-3.44h-1.79Z"/><path class="lf" d="M240.43,86.23h6.36l.45,2.79h-.05c-.49-.99-1.22-1.49-2.19-1.49h-2.09v2.69h2.3c.25,0,.48-.24.7-.73h.05v2.69h-.05c-.22-.49-.46-.73-.7-.73h-2.3v2.84h2.06c1.28,0,2.21-.5,2.79-1.51h.05l-.63,2.82h-6.76v-.03c.3-.24.44-.52.44-.86v-7.57c0-.39-.15-.68-.44-.89v-.03h0Z"/><path class="lf" d="M254.86,86.1c.87,0,1.86.31,2.97.91l-.71,2.37c-.69-1.25-1.54-1.88-2.56-1.88-.83.01-1.25.35-1.25,1.02s.9,1.33,2.69,2.03c1.39.54,2.09,1.37,2.11,2.48,0,1.27-.69,2.14-2.06,2.58-.41.12-.91.18-1.51.18-1.52,0-2.84-.57-3.96-1.7l1.12-2.19c.37,1.04.97,1.8,1.8,2.27.28.16.54.24.78.24,1.17.02,1.76-.41,1.77-1.28,0-.53-.75-1.12-2.24-1.8-1.69-.76-2.53-1.72-2.53-2.9,0-1.1.55-1.81,1.64-2.11.51-.16,1.16-.24,1.93-.24h0Z"/><path class="lf" d="M261.41,86.23h2.92v.03c-.3.2-.45.58-.45,1.15v7.02c0,.6.16.98.47,1.12v.05h-2.95v-.05c.31-.17.47-.47.47-.89v-7.49c0-.38-.16-.68-.47-.91v-.03h0Z"/><path class="lf" d="M272.61,85.92h.42c1.1,0,2.19.34,3.26,1.02l-.7,2.38c-.3-.66-.88-1.16-1.75-1.51-.43-.16-.83-.23-1.17-.23h-.23c-1.06,0-1.83.55-2.32,1.64-.24.55-.37,1.13-.37,1.72,0,1.14.42,2.1,1.25,2.87.47.45,1.08.68,1.83.68.46,0,.95-.15,1.46-.44.47-.28.7-.74.7-1.38,0-.86-.24-1.44-.73-1.75v-.03h3.05v.03c-.49.31-.73.86-.73,1.67v3.09h-.81l-.6-.32c-.87.43-1.75.65-2.64.65-3.17,0-4.8-1.7-4.88-5.09,0-1.65.69-2.99,2.06-4.04.81-.63,1.77-.94,2.9-.94h0Z"/><path class="lf" d="M280.12,86.23h2.29c.1.08,1.3,1.86,3.6,5.35v-4.49c0-.36-.15-.63-.44-.81v-.05h2.92v.05c-.3.18-.44.45-.44.81v7.64c0,.33.15.61.44.83v.03h-2.92v-.03c.3-.23.44-.51.44-.83v-.47l-3.39-5.11h-.03v5.61c0,.33.15.59.44.78v.05h-2.92v-.03c.3-.24.44-.52.44-.86v-7.57c0-.39-.15-.67-.44-.86v-.05h0Z"/></svg>
+</div>
+
+<div style="display:flex;justify-content:center;margin-top:28px">
+  <button class="btn btn-ghost" onclick="clearForm()" style="font-size:12px;padding:7px 20px;opacity:.55;letter-spacing:.08em">Limpar formulário</button>
+</div>
+
+</div><!-- /page-wrap -->
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+var tipoAtual = null;
+var diaCount = 0;
+
+// ─── HORÁRIOS 15 EM 15 MIN ────────────────────────────
+function buildTimeOptions() {
+  var opts = '<option value="">Selecione</option>';
+  for (var h = 0; h < 24; h++) {
+    for (var m = 0; m < 60; m += 15) {
+      var hh = h < 10 ? '0' + h : '' + h;
+      var mm = m === 0 ? '00' : '' + m;
+      opts += '<option value="' + hh + ':' + mm + '">' + hh + ':' + mm + '</option>';
+    }
+  }
+  return opts;
+}
+function fillTimeSelects() {
+  var opts = buildTimeOptions();
+  var ids = ['dia-unico-inicio','dia-unico-fim','hosp-checkin','hosp-checkout'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+}
+function timeSelectHTML(id, required) {
+  return '<select id="' + id + '">' + buildTimeOptions() + '</select>';
+}
+
+// ─── HELPERS ─────────────────────────────────────────
+function showCond(id, show) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  show ? el.classList.add('on') : el.classList.remove('on');
+  if (id === 'hosp-block' && show && hotelCount === 0) addHotel();
+}
+function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function getChecked(name) {
+  return Array.prototype.map.call(
+    document.querySelectorAll('input[name="' + name + '"]:checked'),
+    function(i) { return i.value; }
+  ).join(', ');
+}
+function getCheckboxes(name) {
+  return Array.prototype.map.call(
+    document.querySelectorAll('input[name="' + name + '"]:checked'),
+    function(i) { return i.value; }
+  ).join(', ');
+}
+
+// ─── HOTÉIS ───────────────────────────────────────────
+var hotelCount = 0;
+function addHotel() {
+  hotelCount++;
+  var n = hotelCount;
+  var opts = buildTimeOptions();
+  var container = document.getElementById('hoteis-container');
+  var div = document.createElement('div');
+  div.className = 'dia-block';
+  div.id = 'hotel-block-' + n;
+  div.innerHTML =
+    '<div class="dia-block-num">Hospedagem ' + n + '</div>' +
+    (n > 1 ? '<button class="btn-remove-dia" onclick="removeHotel(' + n + ')">Remover</button>' : '') +
+    '<div class="grid g2">' +
+      '<div class="field col-2"><label class="field-label">Nome e endereço <span class="req">*</span></label><input type="text" id="hotel-'+n+'-nome" placeholder="Ex: Hotel Vista Mar — Rua das Flores, 100"></div>' +
+      '<div class="field col-2"><label class="field-label">Link do hotel / pousada <span class="req">*</span></label><input type="url" id="hotel-'+n+'-link" placeholder="https://www.hotel.com.br ou @nomehotel (Instagram)"></div>' +
+      '<div class="field"><label class="field-label">Check-in <span class="opt-tag">Opcional</span></label><select id="hotel-'+n+'-checkin">'+opts+'</select></div>' +
+      '<div class="field"><label class="field-label">Check-out <span class="opt-tag">Opcional</span></label><select id="hotel-'+n+'-checkout">'+opts+'</select></div>' +
+      '<div class="field col-2"><label class="field-label">Botão de reserva no site? <span class="req">*</span></label><div class="choice-group choice-inline"><label class="choice-item" onclick="selectRadioInline(this,\'hotel-'+n+'-reserva\')"><input type="radio" name="hotel-'+n+'-reserva" value="Sim"> Sim</label><label class="choice-item" onclick="selectRadioInline(this,\'hotel-'+n+'-reserva\')"><input type="radio" name="hotel-'+n+'-reserva" value="Não"> Não</label></div></div>' +
+    '</div>';
+  container.appendChild(div);
+}
+function removeHotel(n) {
+  var el = document.getElementById('hotel-block-' + n);
+  if (el) el.remove();
+}
+var NOMES_CLIENTES = {
+  casamento:   'Nome do casal',
+  bodas:       'Nome do casal',
+  '15anos':    'Nome da aniversariante',
+  aniversario: 'Nome do(a) aniversariante',
+  infantil:    'Nome da criança',
+  empresarial: 'Nome da empresa / evento',
+  outro:       'Nome do(s) cliente(s)'
+};
+var NOMES_CERIMONIAL = {
+  casamento:   'Assessoria / Cerimonial',
+  bodas:       'Assessoria / Cerimonial',
+  '15anos':    'Assessoria / Cerimonial',
+  aniversario: 'Representante',
+  infantil:    'Representante',
+  empresarial: 'Representante / Empresa Organizadora',
+  outro:       'Representante / Cerimonial'
+};
+
+function selectTipo(el, tipo) {
+  Array.prototype.forEach.call(document.querySelectorAll('#tipo-group .choice-item'), function(i) {
+    i.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  tipoAtual = tipo;
+  showCond('tipo-outro-block', tipo === 'outro');
+
+  // Atualiza labels dinâmicos
+  var labelNomes = document.getElementById('label-nomes');
+  if (labelNomes) labelNomes.innerHTML = (NOMES_CLIENTES[tipo] || 'Nome(s)') + ' <span class="req">*</span>';
+
+  var labelCerim = document.getElementById('label-cerimonial');
+  if (labelCerim) labelCerim.childNodes[0].textContent = (NOMES_CERIMONIAL[tipo] || 'Representante / Cerimonial') + ' ';
+
+  var placeholder = tipo === 'casamento' || tipo === 'bodas' ? 'Ex: Ana & Pedro' :
+                    tipo === '15anos' ? 'Ex: Maria Luísa' :
+                    tipo === 'infantil' ? 'Ex: Theo' :
+                    tipo === 'empresarial' ? 'Ex: Tech Summit 2025' : 'Nome';
+  var inp = document.getElementById('nomes-clientes');
+  if (inp) inp.placeholder = placeholder;
+
+  updateProgress();
+}
+
+// ─── DURAÇÃO ──────────────────────────────────────────
+function showDuracao(tipo) {
+  showCond('duracao-unico', tipo === 'unico');
+  showCond('duracao-multiplos', tipo === 'multiplos');
+  if (tipo === 'multiplos' && diaCount === 0) addDia();
+  updateProgress();
+}
+
+// ─── MÚLTIPLOS DIAS ───────────────────────────────────
+function addDia() {
+  diaCount++;
+  var n = diaCount;
+  var opts = buildTimeOptions();
+  var container = document.getElementById('dias-container');
+  var div = document.createElement('div');
+  div.className = 'dia-block';
+  div.id = 'dia-block-' + n;
+  div.innerHTML =
+    '<div class="dia-block-num">Dia / Evento ' + n + '</div>' +
+    (n > 1 ? '<button class="btn-remove-dia" onclick="removeDia(' + n + ')">Remover</button>' : '') +
+    '<div class="grid g2">' +
+      '<div class="field"><label class="field-label">Nome deste evento <span class="req">*</span></label><input type="text" id="dia-'+n+'-nome" placeholder="Ex: Casamento Luiza & Antônio, Bodas Vitória & Marcelo, 15 anos Marina, XV Marina..."></div>' +
+      '<div class="field"><label class="field-label">Data <span class="req">*</span></label><input type="date" id="dia-'+n+'-data"></div>' +
+      '<div class="field"><label class="field-label">Horário de início <span class="req">*</span></label><select id="dia-'+n+'-inicio">'+opts+'</select></div>' +
+      '<div class="field"><label class="field-label">Horário de término <span class="opt-tag">Opcional</span></label><select id="dia-'+n+'-fim">'+opts+'</select></div>' +
+      '<div class="field"><label class="field-label">Nome do local <span class="req">*</span></label><input type="text" id="dia-'+n+'-local" placeholder="Ex: Espaço Villa Jardim"></div>' +
+      '<div class="field"><label class="field-label">Endereço do local <span class="req">*</span></label><input type="text" id="dia-'+n+'-end" placeholder="Rua, número, bairro, cidade"></div>' +
+      '<div class="field col-2"><label class="field-label">Haverá dress code? <span class="req">*</span></label>' +
+        '<div class="choice-group choice-inline">' +
+          '<label class="choice-item" onclick="selectRadioInline(this,\'dresscode-'+n+'\');showCond(\'dc-'+n+'-block\',true)"><input type="radio" name="dresscode-'+n+'" value="Sim"> Sim</label>' +
+          '<label class="choice-item" onclick="selectRadioInline(this,\'dresscode-'+n+'\');showCond(\'dc-'+n+'-block\',false)"><input type="radio" name="dresscode-'+n+'" value="Não"> Não</label>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cond-block col-2" id="dc-'+n+'-block">' +
+        '<div class="grid g2">' +
+          '<div class="field"><label class="field-label">Tipo de dress code <span class="req">*</span></label><input type="text" id="dia-'+n+'-dc-tipo" placeholder="Ex: Esporte fino, Black tie, Casual chic..."></div>' +
+          '<div class="field"><label class="field-label">Link para inspirações <span class="opt-tag">Opcional</span></label><input type="url" id="dia-'+n+'-dc-link" placeholder="Ex: All Black, etc"></div>' +
+          '<div class="field col-2"><label class="field-label">Complementos ao dress code <span class="opt-tag">Opcional</span></label><input type="text" id="dia-'+n+'-dc-desc" placeholder="Descreva detalhes adicionais sobre o dress code..."></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  container.appendChild(div);
+}
+
+function removeDia(n) {
+  var el = document.getElementById('dia-block-' + n);
+  if (el) el.remove();
+}
+
+// ─── CHOICE HELPERS ───────────────────────────────────
+function selectRadioInline(el, name) {
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="' + name + '"]'), function(i) {
+    i.closest('.choice-item').classList.remove('selected');
+  });
+  el.classList.add('selected');
+  updateProgress();
+}
+function toggleCheck(el) {
+  el.classList.toggle('selected', el.querySelector('input').checked);
+  updateProgress();
+}
+function toggleRec(id, el) {
+  showCond(id, el.querySelector('input').checked);
+}
+
+// ─── PROGRESS SEGMENTADO ──────────────────────────────
+// Cada seção tem seus critérios de preenchimento.
+// O círculo tem 4 segmentos — um por seção.
+// Cada segmento acumula cor conforme o % daquela seção é preenchido.
+
+var SEG_N = 5;          // número de segmentos
+var SEG_R = 22;         // raio
+var SEG_CX = 29;
+var SEG_CY = 29;
+var SEG_GAP_DEG = 6;    // gap em graus entre segmentos
+
+function buildSegSVG() {
+  var svg = document.getElementById('seg-svg');
+  if (!svg) return;
+  var circ = 2 * Math.PI * SEG_R;
+  var gapTotal = SEG_GAP_DEG * SEG_N;
+  var segDeg = (360 - gapTotal) / SEG_N;
+  var segArc = (segDeg / 360) * circ;
+  var gapArc = (SEG_GAP_DEG / 360) * circ;
+  var html = '';
+  for (var i = 0; i < SEG_N; i++) {
+    var dashOffset = -(i * (segArc + gapArc));
+    var dashArrayTrack = segArc.toFixed(2) + ' ' + (circ - segArc).toFixed(2);
+    // track (fundo cinza)
+    html += '<circle class="seg-track" cx="'+SEG_CX+'" cy="'+SEG_CY+'" r="'+SEG_R+'"'
+          + ' stroke-dasharray="'+dashArrayTrack+'"'
+          + ' stroke-dashoffset="'+dashOffset.toFixed(2)+'"'
+          + ' transform="rotate(-90 '+SEG_CX+' '+SEG_CY+')"'
+          + '/>';
+    // fill — começa com arco 0
+    html += '<circle class="seg-fill" id="seg-fill-'+i+'" cx="'+SEG_CX+'" cy="'+SEG_CY+'" r="'+SEG_R+'"'
+          + ' stroke="'+getSegColor(0)+'"'
+          + ' stroke-dasharray="0 '+circ.toFixed(2)+'"'
+          + ' stroke-dashoffset="'+dashOffset.toFixed(2)+'"'
+          + ' transform="rotate(-90 '+SEG_CX+' '+SEG_CY+')"'
+          + '/>';
+  }
+  svg.innerHTML = html;
+}
+
+function getSegColor(pct) {
+  if (pct === 0) return '#e0e0e0';
+  return '#581119';
+}
+
+// ─── SEM CERIMONIAL ───────────────────────────────────
+var semCerimonial = false;
+function toggleSemCerimonial() {
+  var tog = document.getElementById('tog-sem-cerim');
+  var fields = document.getElementById('cerim-fields');
+  var note = document.getElementById('cerim-skip-note');
+  semCerimonial = tog.checked;
+  fields.style.opacity = semCerimonial ? '0.3' : '1';
+  fields.style.pointerEvents = semCerimonial ? 'none' : '';
+  note.style.display = semCerimonial ? 'block' : 'none';
+  updateProgress();
+}
+
+function getSectionProgress(idx) {
+  var checks;
+  if (idx === 0) {
+    // Seção 01 — Dados do Evento
+    checks = [
+      !!document.querySelector('input[name="tipo"]:checked'),
+      !!document.querySelector('input[name="duracao"]:checked'),
+      !!(v('dia-unico-data') || (document.getElementById('dia-1-data') && v('dia-1-data'))),
+      !!(v('dia-unico-local') || (document.getElementById('dia-1-local') && v('dia-1-local')))
+    ];
+  } else if (idx === 1) {
+    // Seção 02 — Dados do Cliente
+    checks = [
+      !!v('nomes-clientes'),
+      !!v('cliente-instagram') || !!v('cliente-idade')
+    ];
+  } else if (idx === 2) {
+    // Seção 03 — Cerimonial (completa se toggle ativo ou campos preenchidos)
+    if (semCerimonial) return 1;
+    checks = [
+      !!v('cerim-empresa'),
+      !!v('cerim-email') || !!v('cerim-whatsapp')
+    ];
+  } else if (idx === 3) {
+    // Seção 04 — Logística
+    checks = [
+      !!document.querySelector('input[name="hosp-status"]:checked'),
+      !!document.querySelector('input[name="transp-status"]:checked'),
+      !!document.querySelectorAll('input[name="rec-tipo"]:checked').length
+    ];
+  } else {
+    // Seção 05 — Dados do Site
+    checks = [
+      !!document.querySelector('input[name="historia-status"]:checked'),
+      !!document.querySelectorAll('input[name="rsvp-plataforma"]:checked').length,
+      !!document.querySelector('input[name="dom-status"]:checked'),
+      !!document.querySelector('input[name="lista-status"]:checked')
+    ];
+  }
+  var done = checks.filter(Boolean).length;
+  return done / checks.length;
+}
+
+function updateProgress() {
+  var circ = 2 * Math.PI * SEG_R;
+  var gapTotal = SEG_GAP_DEG * SEG_N;
+  var segDeg = (360 - gapTotal) / SEG_N;
+  var segArc = (segDeg / 360) * circ;
+  var gapArc = (SEG_GAP_DEG / 360) * circ;
+
+  var totalPct = 0;
+  for (var i = 0; i < SEG_N; i++) {
+    var pct = getSectionProgress(i);
+    totalPct += pct;
+    var fillArc = segArc * pct;
+    var rest = circ - fillArc;
+    var el = document.getElementById('seg-fill-' + i);
+    if (!el) continue;
+    el.setAttribute('stroke-dasharray', fillArc.toFixed(2) + ' ' + rest.toFixed(2));
+    el.setAttribute('stroke', getSegColor(pct * 100));
+  }
+
+  // Barra linear
+  var pctTotal = Math.round((totalPct / SEG_N) * 100);
+  document.getElementById('progress-fill').style.width = pctTotal + '%';
+  document.getElementById('pct-label').textContent = pctTotal + '%';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  fillTimeSelects();
+  buildSegSVG();
+  updateProgress();
+});
+document.addEventListener('input', updateProgress);
+document.addEventListener('change', updateProgress);
+
+// ─── CLEAR ────────────────────────────────────────────
+function clearForm() {
+  if (!confirm('Limpar todos os campos preenchidos?')) return;
+  Array.prototype.forEach.call(
+    document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]),textarea,select'),
+    function(el) { el.value = ''; }
+  );
+  Array.prototype.forEach.call(
+    document.querySelectorAll('input[type="radio"],input[type="checkbox"]'),
+    function(el) { el.checked = false; }
+  );
+  Array.prototype.forEach.call(document.querySelectorAll('.choice-item'), function(el) { el.classList.remove('selected'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.cond-block'), function(el) { el.classList.remove('on'); });
+  document.getElementById('dias-container').innerHTML = '';
+  diaCount = 0;
+  tipoAtual = null;
+  updateProgress();
+}
+
+// ─── PDF ──────────────────────────────────────────────
+function generatePDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var W = 210, mg = 18, y = 0;
+  var cMg = mg - 6, cW = W - (mg - 6) * 2;
+  var C = {
+    vinho:[88,17,25], dark:[29,29,31], muted:[110,110,115],
+    border:[224,224,224], bg:[241,241,241], white:[255,255,255]
+  };
+  var tipoEvento=getChecked('tipo')||v('tipo-outro-text')||'';
+  var nomesEvento=v('nomes-clientes')||'';
+  var idadeEvento=v('cliente-idade')||'';
+  var instaEvento=v('cliente-instagram')||'';
+  var duracao=getChecked('duracao')||'';
+  var dataUnica=v('dia-unico-data')||'';
+  var dataEntrega=v('site-data-entrega')||'';
+  function fmtDate(d){if(!d)return'';var p=d.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;}
+  function bgPage(){doc.setFillColor(C.bg[0],C.bg[1],C.bg[2]);doc.rect(0,0,W,297,'F');}
+  function pageCheck(n){if(y+(n||14)>283){doc.addPage();bgPage();y=14;}}
+  function secTitle(t){
+    pageCheck(20);
+    doc.setFillColor(C.vinho[0],C.vinho[1],C.vinho[2]);
+    doc.roundedRect(cMg,y,cW,10,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.setTextColor(C.white[0],C.white[1],C.white[2]);
+    doc.text(t.toUpperCase(),mg,y+6.5);
+    y+=14;
+  }
+  function row(label,val){
+    if(!val)return;
+    pageCheck(18);
+    var lines=doc.splitTextToSize(val,cW-10);
+    var lh=lines.length*5+12;
+    doc.setFillColor(C.white[0],C.white[1],C.white[2]);
+    doc.roundedRect(cMg,y-2,cW,lh,1,1,'F');
+    doc.setDrawColor(C.border[0],C.border[1],C.border[2]);doc.setLineWidth(0.2);
+    doc.roundedRect(cMg,y-2,cW,lh,1,1,'S');
+    doc.setFillColor(C.vinho[0],C.vinho[1],C.vinho[2]);
+    doc.rect(cMg,y-2,2.5,lh,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7);
+    doc.setTextColor(C.vinho[0],C.vinho[1],C.vinho[2]);
+    doc.text(label.toUpperCase(),mg,y+3.5);
+    y+=6;
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    doc.setTextColor(C.dark[0],C.dark[1],C.dark[2]);
+    doc.text(lines,mg,y);
+    y+=lines.length*5+5;
+  }
+
+  bgPage();
+
+  // CABEÇALHO
+  var hH=82;
+  doc.setFillColor(C.white[0],C.white[1],C.white[2]);doc.roundedRect(cMg,8,cW,hH,3,3,'F');
+  doc.setFillColor(C.vinho[0],C.vinho[1],C.vinho[2]);doc.rect(cMg,8,3,hH,'F');
+  doc.setDrawColor(C.border[0],C.border[1],C.border[2]);doc.setLineWidth(0.3);doc.roundedRect(cMg,8,cW,hH,3,3,'S');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(C.vinho[0],C.vinho[1],C.vinho[2]);
+  doc.text('PIN UP DESIGN',mg+2,17);
+  doc.setDrawColor(C.border[0],C.border[1],C.border[2]);doc.setLineWidth(0.2);doc.line(mg+2,19,W-mg,19);
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(C.dark[0],C.dark[1],C.dark[2]);
+  var hLine=[tipoEvento,nomesEvento].filter(Boolean).join('  ·  ');
+  doc.text(doc.splitTextToSize(hLine,cW-12)[0],mg+2,28);
+
+  var iCards=[];
+  if(duracao)iCards.push({label:'DURACAO',val:duracao});
+  if(dataUnica)iCards.push({label:'DATA',val:fmtDate(dataUnica)});
+  if(idadeEvento)iCards.push({label:'IDADE',val:idadeEvento});
+  if(instaEvento)iCards.push({label:'INSTAGRAM',val:instaEvento});
+  if(dataEntrega)iCards.push({label:'ENTREGA',val:fmtDate(dataEntrega)});
+  if(iCards.length>0){
+    var iW=(cW-8-(iCards.length-1)*3)/iCards.length;
+    iCards.forEach(function(ic,i){
+      var ix=mg+2+i*(iW+3);
+      doc.setFillColor(C.bg[0],C.bg[1],C.bg[2]);doc.roundedRect(ix,33,iW,17,2,2,'F');
+      doc.setDrawColor(C.border[0],C.border[1],C.border[2]);doc.setLineWidth(0.2);doc.roundedRect(ix,33,iW,17,2,2,'S');
+      doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(C.vinho[0],C.vinho[1],C.vinho[2]);
+      doc.text(ic.label,ix+iW/2,39.5,{align:'center'});
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(C.dark[0],C.dark[1],C.dark[2]);
+      doc.text(doc.splitTextToSize(ic.val,iW-4)[0],ix+iW/2,46,{align:'center'});
+    });
+  }
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(C.muted[0],C.muted[1],C.muted[2]);
+  doc.text('Gerado em '+new Date().toLocaleString('pt-BR'),mg+2,83);
+  doc.text('dani@pinupdesign.com.br  ·  +55 (31) 98823-0022',W-mg,83,{align:'right'});
+  y=98;
+
+  secTitle('Dados do Evento');
+  row('Tipo de evento',getChecked('tipo')||v('tipo-outro-text'));
+  row('Duracao',getChecked('duracao'));
+  var dur=getChecked('duracao');
+  if(dur==='Dia único'){
+    row('Data',fmtDate(v('dia-unico-data')));
+    row('Horario',[v('dia-unico-inicio'),v('dia-unico-fim')].filter(Boolean).join(' as '));
+    row('Local',v('dia-unico-local'));row('Endereco',v('dia-unico-end'));
+    row('Dress code',getChecked('dresscode-unico'));row('Tipo de dress code',v('dresscode-unico-tipo'));
+    row('Complementos ao dress code',v('dresscode-unico-desc'));row('Link para inspiracoes',v('dresscode-unico-link'));
+  } else {
+    for(var d=1;d<=diaCount;d++){if(document.getElementById('dia-block-'+d)){
+      row('Dia '+d+' - Nome',v('dia-'+d+'-nome'));
+      row('Dia '+d+' - Data',fmtDate(v('dia-'+d+'-data')));
+      row('Dia '+d+' - Horario',[v('dia-'+d+'-inicio'),v('dia-'+d+'-fim')].filter(Boolean).join(' as '));
+      row('Dia '+d+' - Local',v('dia-'+d+'-local'));row('Dia '+d+' - Endereco',v('dia-'+d+'-end'));
+      row('Dia '+d+' - Dress code',getChecked('dresscode-'+d));
+      row('Dia '+d+' - Tipo dress code',v('dia-'+d+'-dc-tipo'));
+      row('Dia '+d+' - Complementos',v('dia-'+d+'-dc-desc'));
+    }}
+  }
+
+  secTitle('Dados do Cliente');
+  row('Nome(s)',v('nomes-clientes'));row('Idade',v('cliente-idade'));
+  row('Instagram',v('cliente-instagram'));row('Observacoes',v('obs-cliente'));
+
+  secTitle('Representante / Cerimonial');
+  if(document.getElementById('tog-sem-cerim')&&document.getElementById('tog-sem-cerim').checked){
+    row('Status','Sem assessoria ou representante neste evento');
+  }else{
+    row('Empresa / Cerimonial',v('cerim-empresa'));row('Responsavel',v('cerim-responsavel'));
+    row('E-mail',v('cerim-email'));row('WhatsApp',v('cerim-whatsapp'));
+  }
+
+  secTitle('Logistica para Convidados');
+  row('Indicacao de hospedagem',getChecked('hosp-status'));
+  for(var h=1;h<=hotelCount;h++){if(document.getElementById('hotel-block-'+h)){
+    row('Hospedagem '+h+' - Nome/Endereco',v('hotel-'+h+'-nome'));
+    row('Hospedagem '+h+' - Link',v('hotel-'+h+'-link'));
+    row('Hospedagem '+h+' - Check-in',v('hotel-'+h+'-checkin'));
+    row('Hospedagem '+h+' - Check-out',v('hotel-'+h+'-checkout'));
+    row('Hospedagem '+h+' - Botao reserva',getChecked('hotel-'+h+'-reserva'));
+  }}
+  row('Transporte no site',getChecked('transp-status'));
+  row('Categorias de transporte',getCheckboxes('transp-categoria'));
+  row('Tipos transporte local',getCheckboxes('transp-local-tipo'));
+  row('Como chegar ao local',v('tl-chegar-obs'));row('Van / transfer',v('tl-van-obs'));
+  row('Aluguel de carro',v('tl-carro-obs'));row('Aplicativo',v('tl-app-obs'));
+  row('Outro transporte - Nome',v('tl-outros-desc'));row('Outro transporte - Info',v('tl-outros-obs'));
+  row('Transporte outra cidade',getCheckboxes('transp-cidade-tipo'));
+  row('Agencia de viagens',v('agencia-nome'));row('Responsavel agencia',v('agencia-resp'));
+  row('E-mail agencia',v('agencia-email'));row('WhatsApp agencia',v('agencia-whatsapp'));
+  row('Orientacoes ao convidado',v('transp-proprio-obs'));
+  row('Recomendacoes locais',getCheckboxes('rec-tipo'));
+  row('Restaurantes / Bares',v('rec-restaurantes-txt'));row('Passeios',v('rec-passeios-txt'));
+  row('Salao - Nome',v('rec-salao-nome'));row('Salao - Como reservar',v('rec-salao-reserva'));
+  row('Salao - Informacoes',v('rec-salao-txt'));row('Hospedagens recomendadas',v('rec-hosp-txt'));
+  row('Museus',v('rec-museus-txt'));row('Outros',v('rec-outros-txt'));
+  row('Observacoes logistica',v('obs-logistica'));
+
+  secTitle('Dados do Site');
+  row('Historia / Frase no site',getChecked('historia-status'));row('Texto da historia',v('historia-texto'));
+  row('RSVP - Plataformas',getCheckboxes('rsvp-plataforma'));
+  row('Site de casamento - Link',v('rsvp-icasei-link'));row('Site de casamento - Obs',v('rsvp-icasei-obs'));
+  row('QR Code - Link',v('rsvp-codemy-link'));row('QR Code - Obs',v('rsvp-codemy-obs'));
+  row('E-mail confirmacoes',v('rsvp-email-cerim'));row('WhatsApp confirmacoes',v('rsvp-tel-cerim'));
+  row('Outra plataforma',v('rsvp-outro-nome'));row('Outra plataforma - Link',v('rsvp-outro-link'));
+  row('Lista de presentes',getChecked('lista-status'));row('Plataforma lista',v('lista-plat'));
+  row('Link da lista',v('lista-link'));row('Numeracao / Preferencias',v('lista-numeracao'));
+  row('Dominio',getChecked('dom-status'));row('Dominio atual',v('dom-url'));
+  row('Provedor do dominio',v('dom-provedor'));row('Acesso ao painel',getChecked('dom-acesso'));
+  row('Dominio desejado',v('dom-desejado'));
+  row('Data limite de entrega',fmtDate(v('site-data-entrega')));
+  row('Periodo no ar',getChecked('periodo-ar')==='Outro periodo'?v('site-periodo-ar'):getChecked('periodo-ar'));
+  row('Observacoes extras',v('obs'));
+
+  var total=doc.getNumberOfPages();
+  for(var p=1;p<=total;p++){
+    doc.setPage(p);
+    doc.setFillColor(C.vinho[0],C.vinho[1],C.vinho[2]);doc.rect(0,289,W,8,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(C.white[0],C.white[1],C.white[2]);
+    doc.text('dani@pinupdesign.com.br  ·  +55 (31) 98823-0022',mg,294);
+    doc.text('Pag. '+p+' / '+total,W-mg,294,{align:'right'});
+  }
+  var tipoArq=(getChecked('tipo')||v('tipo-outro-text')||'evento').replace(/\s+/g,'_').replace(/\//g,'-');
+  var nomeArq=v('nomes-clientes').replace(/\s+/g,'_').replace(/&/g,'e').replace(/\//g,'-')||'cliente';
+  doc.save('site_'+tipoArq+'_'+nomeArq+'.pdf');
+}
+
+// ─── WHATSAPP ─────────────────────────────────────────
+function sendWhatsApp() {
+  var tipo = getChecked('tipo') || v('tipo-outro-text') || '-';
+  var nomes = v('nomes-clientes') || '-';
+  var dur = getChecked('duracao') || '-';
+  var cerim = v('cerim-empresa') || '-';
+  var msg = 'Olá! Seguem os dados para o site do meu evento:\n\n';
+  msg += '*Tipo de evento:* ' + tipo + '\n';
+  msg += '*Cliente(s):* ' + nomes + '\n';
+  msg += '*Duração:* ' + dur + '\n';
+  msg += '*Cerimonial / Assessoria:* ' + cerim + '\n';
+  if (v('dom-url')) msg += '*Domínio:* ' + v('dom-url') + '\n';
+  if (v('obs')) msg += '\n*Observações:* ' + v('obs');
+  msg += '\n\n_(PDF completo em anexo)_';
+  window.open('https://wa.me/5531988230022?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
+</body>
+</html>
