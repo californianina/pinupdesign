@@ -1,0 +1,315 @@
+/* =====================================================================
+   CONVITE DIGITAL · XV Giovana & Giordana
+   style.css — FASE 1 (estático) + posições da fase 2. Somente layout mobile.
+   Posições dos elementos: bloco "POSIÇÕES" no final do arquivo.
+   ===================================================================== */
+
+/* ---------- 1. CONFIGURÁVEIS (trocar a cada convite) ---------- */
+:root{
+  /* fundo AO REDOR do celular (tablet/desktop): cor e/ou imagem */
+  --surround-color: #d8b5b7;
+  --surround-image: none;              /* o fundo desktop (assets/img/fundo-ao-redor.webp) é ligado dentro do @media do celular-moldura, na seção 3 */
+  --surround-size: cover;
+  --surround-position: center;
+
+  /* cor da página enquanto as imagens carregam */
+  --page-bg: #d8b5b7;
+
+  /* botão de som */
+  --sound-bg: rgba(255,250,246,.82);
+  --sound-fg: #94454a;
+
+  /* popups (Como chegar / Presentes) */
+  --popup-w: 96;                       /* largura do popup, em % da tela */
+  --popup-dim: rgba(58,22,30,.62);     /* escurecimento do fundo */
+  --popup-paper: #d8b5b7;              /* fundo dentro da moldura de renda (rosa da paleta do site) */
+  --popup-ink: #94454a;                /* cor dos links e do botão fechar */
+
+  /* moldura do celular (medidas do PNG recortado: 491×1007 | tela x20 y17 · 451×971) */
+  --frame-w: 491;
+  --frame-h: 1007;
+  --screen-x: 20;
+  --screen-y: 17;
+  --screen-w: 451;
+  --screen-h: 971;
+  --screen-radius: 56;                 /* raio do canto interno da tela, em px da moldura (ajuste se trocar a máscara) */
+  --frame-max-h: 1100px;               /* altura máxima do celular no desktop */
+  --frame-vh: 94;                      /* % da altura da janela ocupada pelo celular */
+}
+
+/* ---------- 2. BASE ---------- */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{
+  margin:0; height:100%; overflow:hidden;           /* a rolagem é só dentro de #screen */
+  overscroll-behavior:none;
+  background-color:var(--surround-color);
+  background-image:var(--surround-image);
+  background-size:var(--surround-size);
+  background-position:var(--surround-position);
+  background-repeat:no-repeat;
+  -webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+}
+img{ display:block; max-width:none; -webkit-user-drag:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+button{ font:inherit; color:inherit; }
+
+/* ---------- 3. DISPOSITIVO (celular cheio ↔ moldura) ---------- */
+.device{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+.device__phone{ position:absolute; inset:0; }
+.device__viewport{ position:absolute; inset:0; overflow:hidden; background:var(--page-bg); }
+.device__frame{ display:none; }
+
+/* tablet / desktop (e celular deitado): layout mobile dentro da moldura */
+@media (min-width:768px), (min-aspect-ratio:4/5){
+  /* v2.18: fundo ao redor do celular (só no modo desktop/tablet: no celular de verdade esta imagem nem é baixada) */
+  :root{ --surround-image:url("assets/img/fundo-ao-redor.webp"); }
+  .device__phone{
+    position:relative; inset:auto;
+    height:min(calc(var(--frame-vh) * 1dvh), var(--frame-max-h));
+    height:min(calc(var(--frame-vh) * 1vh), var(--frame-max-h));
+    height:min(calc(var(--frame-vh) * 1dvh), var(--frame-max-h));
+    aspect-ratio:var(--frame-w) / var(--frame-h);
+  }
+  .device__viewport{
+    inset:auto;
+    left:calc(var(--screen-x) / var(--frame-w) * 100%);
+    top:calc(var(--screen-y) / var(--frame-h) * 100%);
+    width:calc(var(--screen-w) / var(--frame-w) * 100%);
+    height:calc(var(--screen-h) / var(--frame-h) * 100%);
+    /* v1.1: cantos arredondados iguais aos da tela da moldura, para o conteúdo não vazar pelos cantos */
+    border-radius:calc(var(--screen-radius) / var(--screen-w) * 100%) / calc(var(--screen-radius) / var(--screen-h) * 100%);
+    isolation:isolate; transform:translateZ(0);   /* garante o recorte também no Safari */
+  }
+  .device__frame{
+    display:block; position:absolute; inset:0; width:100%; height:100%;
+    z-index:10; pointer-events:none;
+  }
+}
+
+/* ---------- 4. CONTÊINER DE ROLAGEM (a "tela") ---------- */
+.screen{
+  position:absolute; inset:0;
+  overflow-x:hidden; overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  container-type:size;                 /* permite usar 100cqh = altura da tela */
+}
+.screen::-webkit-scrollbar{ display:none; }
+.screen.is-locked{ overflow:hidden; touch-action:none; }   /* rolagem travada até o vídeo acabar */
+.page{ position:relative; width:100%; }
+
+/* ---------- 5. ABERTURA (intro gate) ---------- */
+.hero{
+  position:relative; width:100%; overflow:hidden; background:#efe9e3;
+  height:100vh; height:100svh; height:100cqh;       /* 1 tela inteira (da "tela" do celular) */
+}
+.hero__videos{ position:absolute; inset:0; z-index:1; }
+.hero__video, .hero__media{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center;          /* preenche a tela; corta um pouco dos lados */
+  pointer-events:none;
+}
+.hero__video{ visibility:hidden; background:transparent; }
+.hero__video.is-active{ visibility:visible; }
+.hero__video::-webkit-media-controls,
+.hero__video::-webkit-media-controls-panel,
+.hero__video::-webkit-media-controls-start-playback-button,
+.hero__video::-webkit-media-controls-overlay-play-button{ display:none!important; -webkit-appearance:none; }
+.hero__last{ z-index:2; visibility:hidden; }          /* último frame (garantia visual) */
+.hero.is-ended .hero__last{ visibility:visible; }
+.hero__banner{ z-index:3; }                           /* primeiro frame, antes do clique */
+.hero.is-playing .hero__banner{ visibility:hidden; }   /* some só quando o 1º frame do vídeo já está na tela */
+.hero__play{
+  position:absolute; inset:0; z-index:4; width:100%; height:100%;
+  margin:0; padding:0; border:0; background:transparent; outline:none;
+  cursor:pointer; -webkit-appearance:none; appearance:none;
+}
+.hero__play:disabled{ cursor:default; }
+.hero.is-started .hero__play{ display:none; }
+
+/* indicador sutil de espera (só aparece se o vídeo seguinte não estiver pronto) */
+.hero__wait{ position:absolute; left:50%; bottom:7%; z-index:5; width:8px; height:8px; border-radius:50%; background:#94454a; opacity:0; pointer-events:none; transform:translateX(-50%); transition:opacity .4s; }
+.hero.is-waiting .hero__wait{ opacity:.7; animation:pulse 1.2s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(.7);opacity:.3} 50%{transform:translateX(-50%) scale(1.2);opacity:.8} }
+
+/* "Toque para abrir" sob o selo (v1.6): acompanha o selo mesmo com o corte do object-fit:cover (imagem 1080×1920; selo em x540 y1195, raio ~85) */
+.hero{ --u:max(calc(100cqw / 1080), calc(100cqh / 1920)); --oy:calc((100cqh - 1920 * var(--u)) / 2); }
+.hero__seal{
+  position:absolute; z-index:4; left:50%; top:calc(var(--oy) + 1195 * var(--u));
+  width:calc(176 * var(--u)); height:calc(176 * var(--u)); margin:calc(-88 * var(--u)) 0 0 calc(-88 * var(--u));
+  border-radius:50%; pointer-events:none; opacity:0;
+}
+.hero__cta{
+  position:absolute; z-index:5; left:50%; top:calc(var(--oy) + 1350 * var(--u)); transform:translateX(-50%);
+  font:italic 400 clamp(17px, 5.4cqw, 26px)/1.2 Georgia,"Times New Roman",serif; letter-spacing:.02em; white-space:nowrap;
+  color:var(--popup-ink); text-shadow:0 1px 0 rgba(255,255,255,.55);
+  pointer-events:none; opacity:0; transition:opacity .5s ease;
+}
+.hero.is-ready:not(.is-started) .hero__cta{ opacity:1; animation:cta-pulse 2.2s ease-in-out infinite; }
+.hero.is-ready:not(.is-started) .hero__seal{ opacity:1; animation:seal-ring 2.2s ease-out infinite; }
+@keyframes cta-pulse{ 0%,100%{ transform:translateX(-50%) scale(1); opacity:.65 } 50%{ transform:translateX(-50%) scale(1.07); opacity:1 } }
+@keyframes seal-ring{ 0%{ box-shadow:0 0 0 0 rgba(148,69,74,.38) } 70%,100%{ box-shadow:0 0 0 calc(34 * var(--u)) rgba(148,69,74,0) } }
+@media (prefers-reduced-motion:reduce){ .hero__cta,.hero__seal{ animation:none!important; } }
+
+/* seta de rolagem (v1.2): sobre o último frame, só depois que o vídeo termina */
+.hero__arrow{
+  /* v2.17: menor e descolada da margem e do texto "Giordana": posicionada nas medidas da arte (1080x1920),
+     centro em y=1850 (o texto termina em y≈1774; a borda inferior é 1920), então acompanha qualquer tela */
+  position:absolute; z-index:6; left:50%; top:calc(var(--oy) + 1850 * var(--u)); transform:translate(-50%,-50%);
+  width:clamp(30px, calc(78 * var(--u)), 38px); height:clamp(30px, calc(78 * var(--u)), 38px); margin:0; padding:0; border:0; border-radius:50%;
+  background:var(--sound-bg); box-shadow:0 1px 6px rgba(80,30,40,.25);   /* fundo (v2.11): mesmo disco suave do botão de som */
+  color:#94454a; cursor:pointer; display:grid; place-items:center;
+  opacity:0; visibility:hidden; transition:opacity .6s ease, visibility 0s linear .6s;
+  -webkit-tap-highlight-color:transparent;
+}
+.hero__arrow[hidden]{ display:none; }
+.hero__arrow.is-visible{ opacity:.9; visibility:visible; transition:opacity .6s ease, visibility 0s; }
+.hero__arrow svg{ width:52%; height:52%; animation:arrow-float 1.8s ease-in-out infinite; filter:drop-shadow(0 1px 1px rgba(255,235,238,.6)); }
+.hero__arrow:focus-visible{ outline:2px solid #94454a; outline-offset:2px; border-radius:50%; }
+@keyframes arrow-float{ 0%,100%{ transform:translateY(-2.5px); opacity:.55 } 50%{ transform:translateY(3px); opacity:1 } }
+
+/* ---------- 6. CONTEÚDO (layout de 1920 px de largura, tudo em %) ---------- */
+.canvas{
+  position:relative; width:100%; aspect-ratio:1920 / 7553;
+  overflow:hidden; isolation:isolate; background:var(--page-bg);
+}
+.canvas__bg{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+.sec{ position:relative; width:100%; aspect-ratio:1920 / var(--sec-h); }   /* sem z-index: camadas empilham no .canvas */
+.layer{ position:absolute; will-change:auto; }
+.layer img{ width:100%; height:auto; }
+.hit{ position:absolute; z-index:300; display:block; border-radius:12px; -webkit-tap-highlight-color:transparent; }
+
+/* ---------- 7. BOTÃO DE SOM ---------- */
+.sound{
+  position:absolute; z-index:20; top:max(18px, env(safe-area-inset-top)); right:18px;
+  width:38px; height:38px; padding:0; border:0; border-radius:50%;
+  display:grid; place-items:center; cursor:pointer;
+  background:var(--sound-bg); color:var(--sound-fg);
+  box-shadow:0 1px 6px rgba(80,30,40,.25);
+  -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  opacity:0; transition:opacity .5s;
+}
+.sound.is-visible{ opacity:1; }
+.sound[hidden]{ display:none; }
+.sound .sound__off{ display:none; }
+.sound.is-muted .sound__on{ display:none; }
+.sound.is-muted .sound__off{ display:block; }
+
+@media (prefers-reduced-motion:reduce){ .hero__wait,.hero__arrow svg{ animation:none!important; } }
+
+/* ---------- 7a. BRILHO NO TEXTO FINAL (v2.8, TESTE) ----------
+   Camada criada por animations.js dentro de #el-txt-luzes e #el-monograma. A máscara (a própria imagem,
+   definida pelo JS) limita a luz às letras; a faixa de luz é um gradiente 3x mais largo que o elemento,
+   deslocado pelo GSAP. Para remover o teste: CFG.brilho.ativo=false (animations.js). */
+.brilho{
+  position:absolute; inset:0; pointer-events:none;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+  background-repeat:no-repeat; background-size:300% 100%; background-position:100% 0%;
+}
+
+/* ---------- 7b. BARRA DE CRÉDITO (v2.6) ----------
+   Fixa no rodapé da tela durante a rolagem (position:sticky dentro do #screen) e, no final da página,
+   assenta no seu próprio lugar: é o último item do fluxo, então reserva 26px e o laço termina acima dela.
+   Escondida sobre o vídeo de abertura e no topo; credito.js liga a classe .is-on quando a rolagem começa. */
+.credit{
+  position:sticky; bottom:0; z-index:60;
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:calc(26px + env(safe-area-inset-bottom, 0px)); padding:0 12px env(safe-area-inset-bottom, 0px);
+  background:#ecd9da; border-top:1px solid rgba(148,69,74,.28);
+  font:italic 400 clamp(8.5px, 2.45cqw, 10.5px)/1 Georgia,"Times New Roman",serif; letter-spacing:.02em; white-space:nowrap;
+  color:var(--popup-ink); text-decoration:none; -webkit-tap-highlight-color:transparent;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .45s ease, visibility 0s linear .45s;
+}
+.credit.is-on{ opacity:1; visibility:visible; pointer-events:auto; transition:opacity .45s ease, visibility 0s; }
+.credit__handle{ margin-left:.28em; font-style:normal; font-weight:700; text-decoration:none; }   /* só o "desenvolvido por" fica em itálico; sem sublinhado */
+.credit:focus-visible{ outline:2px solid var(--popup-ink); outline-offset:-3px; }
+@media (prefers-reduced-motion:reduce){ .credit, .credit.is-on{ transition:none; } }
+
+/* ---------- 8. POPUPS (v1.3) ---------- */
+.popup{
+  position:absolute; inset:0; z-index:30; display:grid; place-items:center;
+  container-type:size; touch-action:none;
+  opacity:0; visibility:hidden; transition:opacity .3s ease, visibility 0s linear .3s;
+}
+.popup.is-open{ opacity:1; visibility:visible; transition:opacity .3s ease, visibility 0s; }
+.popup__backdrop{ position:absolute; inset:0; background:var(--popup-dim); cursor:pointer; }
+.popup__box{
+  position:relative; aspect-ratio:1 / 1; container-type:inline-size;
+  width:min(calc(var(--popup-w) * 1cqw), calc(var(--popup-w) * 1cqh));
+  transform:scale(.94) translateY(8px); transition:transform .38s cubic-bezier(.2,.8,.2,1);
+}
+.popup.is-open .popup__box{ transform:none; }
+.popup__frame, .popup__card{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.popup__frame{ z-index:2; }
+
+/* Como chegar: área do furo da renda (em % da imagem 4000×4000) = x 19,7–80,4 · y 17,0–83,1 */
+.popup__paper{ position:absolute; z-index:0; left:18.9%; top:16.2%; width:62.3%; height:67.7%; background:var(--popup-paper); }
+.popup__content{
+  position:absolute; z-index:1; left:21.9%; top:19.1%; width:56.2%; height:61.9%;   /* retângulo seguro dentro do furo */
+  display:flex; flex-direction:column; align-items:stretch; gap:1.2cqw;
+}
+.popup__map{
+  flex:1 1 auto; min-height:0; margin-bottom:1.6cqw; overflow:hidden; border-radius:1.6cqw;
+  background:#ecd9da; box-shadow:0 0 0 1.5px #94454a;
+}
+.popup__map iframe{ display:block; width:100%; height:100%; border:0; pointer-events:none; }   /* mapa só para visualizar */
+.popup__link{
+  flex:0 0 auto; display:block; text-align:center; text-decoration:underline; text-underline-offset:.22em; text-decoration-thickness:1px;
+  font:italic 4.3cqw/1.2 Georgia,"Times New Roman",serif; color:#3a161e; padding:1.6cqw 0;
+  -webkit-tap-highlight-color:transparent;
+}
+.popup__link:focus-visible{ outline:2px solid var(--popup-ink); outline-offset:2px; border-radius:4px; }
+
+.popup__close{
+  position:absolute; z-index:3; top:4%; right:5%; width:34px; height:34px; padding:0; border:0; border-radius:50%;
+  display:grid; place-items:center; cursor:pointer; color:var(--popup-ink); background:rgba(255,250,246,.92);
+  box-shadow:0 1px 5px rgba(80,30,40,.3); -webkit-tap-highlight-color:transparent;
+}
+.popup__close:focus-visible{ outline:2px solid var(--popup-ink); outline-offset:2px; }
+@media (prefers-reduced-motion:reduce){ .popup, .popup__box{ transition:none; } }
+
+/* =====================================================================
+   POSIÇÕES (geradas do PDF — x em % da largura; y em % da altura da seção)
+   Ordem do empilhamento = z-index. Rotação aplicada no <img> interno,
+   então o contêiner .layer fica livre para animar (GSAP) na fase 2.
+   ===================================================================== */
+#el-rosas-a{left:9.6688%;top:-43.8777%;width:87.1135%;z-index:1;}
+#el-rosas-a img{transform:rotate(45.0deg);}
+#el-renda{left:14.6965%;top:-16.8508%;width:69.6413%;z-index:2;}
+#el-renda img{transform:rotate(90.0deg);}
+#el-cartao{left:11.3752%;top:-20.4612%;width:78.8906%;z-index:3;}
+#el-borla{left:43.5231%;top:60.3847%;width:14.792%;z-index:3;}   /* borla recortada do cartão (pivô no topo-centro) */
+#el-coracao-rosa{left:38.0694%;top:53.9681%;width:23.8639%;z-index:4;}
+#el-coracao-vinho{left:58.9366%;top:55.0742%;width:38.2292%;z-index:5;}
+#el-buque-a{left:65.3554%;top:14.4056%;width:59.0215%;z-index:6;}
+#el-buque-a img{transform:rotate(-48.33deg);}
+#el-botao-rsvp{left:29.0974%;top:20.048%;width:43.5797%;z-index:7;}
+#el-rsvp-texto{left:37.5981%;top:29.4324%;width:27.7532%;z-index:8;}
+#el-pin{left:46.2621%;top:57.385%;width:9.8561%;z-index:9;}
+#el-presente{left:11.0511%;top:76.9721%;width:30.2017%;z-index:10;}
+#el-coracao-bolinhas{left:61.4936%;top:79.6017%;width:30.1562%;z-index:11;}
+#el-icone-instagram{left:71.0943%;top:86.9016%;width:11.6667%;z-index:12;}
+#el-laco{left:6.7559%;top:61.8368%;width:85.8854%;z-index:13;}
+#el-monograma{left:41.9266%;top:50.2936%;width:16.1458%;z-index:14;}
+#el-lustre{left:33.0676%;top:0.7149%;width:35.4688%;z-index:15;}
+#el-lustre .lustre__aceso{position:absolute;left:0;top:0;opacity:0;}   /* lustre aceso sobre o apagado; a opacidade é animada em animations.js */
+#el-buque-b{left:-23.9265%;top:48.9165%;width:61.5918%;z-index:16;}
+#el-envelope-fundo{left:15.255%;top:4.772%;width:72.693%;z-index:17;}   /* envelope em 3 camadas, alinhadas ao envelope anterior (centro e largura) */
+#el-envelope-papel{left:15.255%;top:4.772%;width:72.693%;z-index:17;clip-path:inset(0 0 1% 0);}   /* clip: o papel não aparece abaixo do envelope enquanto sobe */
+#el-envelope-frente{left:15.255%;top:4.772%;width:72.693%;z-index:17;}
+#el-rosas-b{left:8.7648%;top:45.7444%;width:81.3953%;z-index:18;}
+#el-rosas-b img{transform:rotate(38.32deg);}
+#el-data{left:35.4841%;top:5.7788%;width:28.933%;z-index:19;}
+#el-endereco{left:39.375%;top:31.9018%;width:21.25%;z-index:36;}
+#el-txt-confirmar{left:27.5%;top:11.1475%;width:46.3542%;z-index:44;}
+#el-txt-comochegar{left:41.7708%;top:77.4863%;width:16.6719%;z-index:47;}
+#el-txt-presentes{left:10.5208%;top:103.7158%;width:27.7604%;z-index:49;}
+#el-txt-instagram{left:64.5833%;top:105.3552%;width:23.9062%;z-index:52;}
+#el-txt-luzes{left:25.4167%;top:36.7083%;width:46.35%;z-index:54;}
+#hit-rsvp{left:27.5%;top:11.1475%;width:46.3542%;height:35.6139%;}
+#hit-comochegar{left:38.0694%;top:53.9681%;width:23.8639%;height:28.8339%;}
+#hit-presentes{left:10.5208%;top:76.9721%;width:30.7321%;height:34.898%;}
+#hit-instagram{left:61.4936%;top:79.6017%;width:30.1562%;height:32.2101%;}

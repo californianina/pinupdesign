@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XV Giovana &amp; Giordana · Convite</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Convite digital — XV Giovana &amp; Giordana, 20/02/2027 às 21h.">
+<meta name="theme-color" content="#d8b5b7">
+<link rel="preload" as="image" href="assets/img/abertura-primeiro-frame.webp" fetchpriority="high">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="device" id="device">
+  <div class="device__phone">
+
+    <!-- "tela" do celular: em celulares ocupa a tela toda; em tablet/desktop fica dentro da moldura -->
+    <div class="device__viewport" id="viewport">
+
+      <!-- CONTÊINER DE ROLAGEM (as animações usam scroller: "#screen") -->
+      <div class="screen is-locked" id="screen">
+        <main class="page" id="page">
+
+          <!-- ===== ABERTURA (intro gate) ===== -->
+          <section class="hero" id="hero" data-section="hero">
+            <!-- vídeos são criados por script.js (lista em CONFIG.videos) dentro de #hero-videos -->
+            <div class="hero__videos" id="hero-videos"></div>
+            <img class="hero__media hero__last" id="hero-last" src="assets/img/abertura-ultimo-frame.webp" alt="XV Giovana &amp; Giordana — Desde o primeiro instante dividimos a vida. Agora, queremos compartilhar com você a emoção de celebrar nossos 15 anos." draggable="false">
+            <img class="hero__media hero__banner" id="hero-banner" src="assets/img/abertura-primeiro-frame.webp" alt="Convite fechado com selo de rosa" draggable="false" fetchpriority="high">
+            <!-- botão de play invisível sobre o banner inteiro (só ativa quando o vídeo 1 está pronto) -->
+            <button class="hero__play" id="hero-play" type="button" aria-label="Abrir convite" disabled></button>
+            <span class="hero__seal" id="hero-seal" aria-hidden="true"></span>
+            <span class="hero__cta" id="hero-cta" aria-hidden="true">Toque para abrir</span>
+            <span class="hero__wait" id="hero-wait" aria-hidden="true"></span>
+            <!-- seta de rolagem: aparece só depois que o vídeo termina (rolagem liberada) -->
+            <button class="hero__arrow" id="hero-arrow" type="button" aria-label="Role para continuar" hidden>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5.5l7 7 7-7M5 12.5l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </section>
+
+          <!-- ===== CONTEÚDO (layout 1920×7553, tudo em % da largura) ===== -->
+          <div class="canvas" id="canvas">
+            <img class="canvas__bg" id="el-fundo" data-src="assets/img/fundo.webp" width="1200" height="4722" alt="" aria-hidden="true" decoding="async" draggable="false">
+
+    <!-- ===== SEÇÃO 1 · envelope (y 0–1930 do layout de 1920×7553) ===== -->
+    <section class="sec sec--s1" id="sec-envelope" data-section="s1" style="--sec-h:1930">
+      <!-- envelope em 3 camadas (v2.3): fundo → papel (sobe com a rolagem) → frente. As 3 têm o mesmo tamanho/posição; z-index igual, a ordem do HTML decide. -->
+      <div class="layer" id="el-envelope-fundo" data-group="envelope" data-z="17"><img data-src="assets/img/17a-envelope-fundo.webp" width="1400" height="1322" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-envelope-papel" data-group="envelope" data-z="17"><img data-src="assets/img/17b-envelope-papel.webp" width="1400" height="1322" alt="XV Giovana & Giordana convidam para seus 15 anos" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-envelope-frente" data-group="envelope" data-z="17"><img data-src="assets/img/17c-envelope-frente.webp" width="1400" height="1322" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-rosas-b" data-group="flores" data-z="18"><img data-src="assets/img/18-rosas-canto-b.webp" width="1200" height="1205" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+    </section>
+
+    <!-- ===== SEÇÃO 2 · dados (y 1930–3560 do layout de 1920×7553) ===== -->
+    <section class="sec sec--s2" id="sec-dados" data-section="s2" style="--sec-h:1630">
+      <div class="layer" id="el-rosas-a" data-group="flores" data-z="1"><img data-src="assets/img/01-rosas-canto-a.webp" width="1200" height="1200" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-cartao" data-group="cartao" data-z="3"><img data-src="assets/img/03-cartao-rendado-borla.webp" width="1200" height="1551" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-borla" data-group="cartao" data-z="3"><img data-src="assets/img/03b-borla.webp" width="225" height="394" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-coracao-vinho" data-group="traje" data-z="5"><img data-src="assets/img/05-coracao-vinho.webp" width="1200" height="1177" alt="Traje: Passeio Completo" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-buque-b" data-group="flores" data-z="16"><img data-src="assets/img/16-buque-rosas-b.webp" width="1200" height="1139" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-data" data-group="cartao" data-z="19"><img data-src="assets/img/19-dourado-data-horas-augusttus.webp" width="656" height="451" alt="20 02 27 — 21 horas — Augusttus" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-endereco" data-group="cartao" data-z="36"><img data-src="assets/img/21-texto-endereco.webp" width="1200" height="519" alt="R. do Registro, 85 — Vila Magdalena — Contagem - MG" decoding="async" draggable="false"></div>
+    </section>
+
+    <!-- ===== SEÇÃO 3 · acoes (y 3560–5390 do layout de 1920×7553) ===== -->
+    <section class="sec sec--s3" id="sec-acoes" data-section="s3" style="--sec-h:1830">
+      <div class="layer" id="el-renda" data-group="rsvp" data-z="2"><img data-src="assets/img/02-renda-oval.webp" width="1200" height="1614" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-coracao-rosa" data-group="comochegar" data-z="4"><img data-src="assets/img/04-coracao-rosa.webp" width="1130" height="1103" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-buque-a" data-group="flores" data-z="6"><img data-src="assets/img/06-buque-rosas-a.webp" width="1200" height="1320" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-botao-rsvp" data-group="rsvp" data-z="7"><img data-src="assets/img/07-botao-oval-dourado.webp" width="1200" height="701" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-rsvp-texto" data-group="rsvp" data-z="8"><img data-src="assets/img/08-dourado-RSVP.webp" width="591" height="153" alt="R.S.V.P" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-pin" data-group="comochegar" data-z="9"><img data-src="assets/img/09-pin-localizacao.webp" width="454" height="578" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-presente" data-group="presentes" data-z="10"><img data-src="assets/img/10-caixa-presente.webp" width="1007" height="987" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-coracao-bolinhas" data-group="instagram" data-z="11"><img data-src="assets/img/11-coracao-bolinhas.webp" width="1200" height="1056" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-icone-instagram" data-group="instagram" data-z="12"><img data-src="assets/img/12-icone-curtir-instagram.webp" width="758" height="691" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-txt-confirmar" data-group="rsvp" data-z="44"><img data-src="assets/img/23-texto-clique-aqui-confirmar-presenca.webp" width="1200" height="263" alt="Clique aqui para confirmar presença" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-txt-comochegar" data-group="comochegar" data-z="47"><img data-src="assets/img/24-texto-como-chegar.webp" width="1200" height="365" alt="Como chegar" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-txt-presentes" data-group="presentes" data-z="49"><img data-src="assets/img/25-texto-sugestoes-de-presentes.webp" width="1200" height="336" alt="Sugestões de Presentes" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-txt-instagram" data-group="instagram" data-z="52"><img data-src="assets/img/26-texto-instagram-da-festa.webp" width="1200" height="309" alt="Instagram da festa" decoding="async" draggable="false"></div>
+      <a class="hit" id="hit-rsvp" data-link="rsvp" href="#" target="_blank" rel="noopener" aria-label="Confirmar presença (R.S.V.P)"></a>
+      <a class="hit" id="hit-comochegar" data-popup="comochegar" href="#comochegar" role="button" aria-haspopup="dialog" aria-label="Como chegar"></a>
+      <a class="hit" id="hit-presentes" data-popup="presentes" href="#presentes" role="button" aria-haspopup="dialog" aria-label="Sugestões de presentes"></a>
+      <a class="hit" id="hit-instagram" data-link="instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram da festa"></a>
+    </section>
+
+    <!-- ===== SEÇÃO 4 · encerramento (y 5390–7553 do layout de 1920×7553) ===== -->
+    <section class="sec sec--s4" id="sec-encerramento" data-section="s4" style="--sec-h:2163">
+      <div class="layer" id="el-laco" data-group="encerramento" data-z="13"><img data-src="assets/img/13-laco-rosa.webp" width="768" height="879" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-monograma" data-group="encerramento" data-z="14"><img data-src="assets/img/14-monograma-GG.webp" width="461" height="603" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-lustre" data-group="encerramento" data-z="15"><img data-src="assets/img/15-lustre.webp" width="1118" height="1128" alt="" aria-hidden="true" decoding="async" draggable="false"><img class="lustre__aceso" data-src="assets/img/15b-lustre-aceso.webp" width="1118" height="1128" alt="" aria-hidden="true" decoding="async" draggable="false"></div>
+      <div class="layer" id="el-txt-luzes" data-group="encerramento" data-z="54"><img data-src="assets/img/27-texto-que-as-luzes-desta-noite.webp" width="1200" height="400" alt="Que as luzes desta noite iluminem memórias para toda a vida!" decoding="async" draggable="false"></div>
+    </section>
+          </div>
+
+          <!-- barra de crédito (v2.6): fixa no rodapé durante a rolagem; no final da página assenta abaixo do laço (último item do fluxo) -->
+          <a class="credit" id="credit" href="https://www.instagram.com/pinupconvites" target="_blank" rel="noopener" aria-label="Desenvolvido por @pinupconvites (abre o Instagram)">desenvolvido por <span class="credit__handle">@pinupconvites</span></a>
+
+        </main>
+      </div>
+
+      <!-- botão fixo de mudo/som (aparece após o play) -->
+      <button class="sound" id="sound" type="button" aria-label="Desativar som" aria-pressed="false" hidden>
+        <svg class="sound__on" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9.5v5h3.6L12 18.5v-13L7.6 9.5H4z" fill="currentColor"/><path d="M15.2 8.6a4.6 4.6 0 0 1 0 6.8M17.6 6.2a8 8 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <svg class="sound__off" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9.5v5h3.6L12 18.5v-13L7.6 9.5H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+
+      <!-- ===== POPUPS (dentro da "tela" do celular) ===== -->
+      <!-- Como chegar: moldura de renda + fundo + mapa + links -->
+      <div class="popup" id="popup-comochegar" role="dialog" aria-modal="true" aria-label="Como chegar" aria-hidden="true">
+        <div class="popup__backdrop" data-close></div>
+        <div class="popup__box popup__box--map">
+          <div class="popup__paper"></div>
+          <div class="popup__content">
+            <div class="popup__map"><iframe id="map-frame" title="Mapa do local da festa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe></div>
+            <a class="popup__link" data-link="waze" href="#" target="_blank" rel="noopener">Abrir no Waze</a>
+            <a class="popup__link" data-link="googlemaps" href="#" target="_blank" rel="noopener">Abrir no Google Maps</a>
+          </div>
+          <img class="popup__frame" src="assets/img/popup-moldura-renda.webp" width="1200" height="1200" alt="" aria-hidden="true" draggable="false">
+          <button class="popup__close" type="button" data-close aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sugestões de presentes: cartão PNG -->
+      <div class="popup" id="popup-presentes" role="dialog" aria-modal="true" aria-label="Sugestões de presentes" aria-hidden="true">
+        <div class="popup__backdrop" data-close></div>
+        <div class="popup__box popup__box--gifts">
+          <img class="popup__card" src="assets/img/popup-presentes.webp" width="1200" height="1200" alt="Giovana: roupas P/36, calçados 37. Giordana: roupas M/38, calçados 38. Nós duas gostamos de perfumes e cremes frutais e maquiagens. Para acessórios, temos preferência pela cor prata. Se ainda tiver dúvida, segue nosso pix: Pix Giovana 178.076.806-01 | Pix Giordana 178.076.986-59" draggable="false">
+          <button class="popup__close" type="button" data-close aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- moldura do celular (só tablet/desktop) -->
+    <img class="device__frame" src="assets/ui/moldura-celular.png" width="491" height="1007" alt="" aria-hidden="true" draggable="false">
+  </div>
+</div>
+
+<audio id="bgm" loop preload="auto"></audio>   <!-- arquivo definido em CONFIG.music.src (script.js) -->
+
+<noscript><style>.screen{overflow-y:auto!important}.hero__play{display:none}</style></noscript>
+<!-- FASE 2 · animações de rolagem (GSAP + ScrollTrigger + animations.js; precisam vir antes do script.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="animations.js" defer></script>
+<script src="credito.js" defer></script>
+<script src="script.js" defer></script>
+</body>
+</html>
